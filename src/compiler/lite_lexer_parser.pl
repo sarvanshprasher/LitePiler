@@ -45,3 +45,31 @@ routine --> [when], condition, [repeat], operation, [endrepeat].
 routine --> [when], word, [in], [range],["("],number,number,[")"],
     [repeat],operation,[endrepeat].
 
+% Rule for evaluating ternary expressions.
+ternary --> ["("],boolExp,[")"],["?"],generalValue,[:],generalValue. 
+
+% Rule for conditions in routines.
+condition --> boolExp, [and], boolExp.
+condition --> boolExp, [or], boolExp.
+condition --> [~], boolExp.
+condition --> [not], boolExp.
+condition --> boolExp.
+
+% Rule for determining boolean expression.
+boolExp --> [true].
+boolExp --> [false].
+boolExp --> [not], boolExp.
+boolExp --> exp,[=],exp.
+boolExp --> exp, [:=:], exp.
+boolExp --> exp, [~=], exp. 
+boolExp --> exp, [<],[=], exp.
+boolExp --> exp, [>],[=], exp.
+boolExp --> exp, [<], exp.
+boolExp --> exp, [>], exp.
+boolExp --> exp, [:=:], boolExp.
+boolExp --> exp, [~=], boolExp.
+
+% Rule for evaluating the horizontal expression(includes addition & difference).
+exp --> exp,horizontal,verticalExp | verticalExp.
+horizontal --> [+].
+horizontal --> [-].
