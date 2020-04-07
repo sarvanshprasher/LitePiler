@@ -1,1 +1,41 @@
+Team Member:
 
+	•	Abhishek
+	•	Rohit
+	•	Sarvansh 
+	•	Suryadeep
+
+For this deliverable we had created CFG which is given in the file lite_lexer_parser.pl.  
+The main task for this CFG was creating rules for different blocks of the grammar. So we divided the tasks of writing rules equally. 
+
+------------------------------------------------------------------------------------------------------------------------------
+Milestone 1:
+
+Sarvansh:
+Rule for the main function of language.
+Rule for structure inside the program.
+Rule for declarations inside the structure.
+Rule for variable types in language.
+Rule for assigning values to variable.
+Rule for the operations done in between structure.
+
+Rohit:
+Rule for the operations done in between structure.
+Rule for the routines done in between operations.
+
+
+Suryadeep:
+Rule for evaluating ternary expressions.
+Rule for determining boolean expression.
+Rule for evaluating the horizontal expression(includes addition & difference).
+
+Abhishek:
+Rule for evaluating the vertical expression(includes multiplication & division).
+Rule for evaluating the expression inside parentheses.
+Rule for evaluating the expression inside parentheses.
+Rule for including word & numbers.
+Rule for printing values.
+
+------------------------------------------------------------------------------------------------------------------------------
+Milestone 2 (Tentative Future plan): 
+In future each one of us are planning to write corresponding rules for Lexer, Parser and Interpreter Based on the rules we have created so far. So each team member will be working on the lexer, parser and interpreter. 
