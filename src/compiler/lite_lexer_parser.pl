@@ -23,3 +23,25 @@ varType --> [string].
 assignValue --> word, [=] ,exp, [;].
 assignValue -->  word, [is], boolExp, [;].
 assignValue -->  word, [=], ternary, [;].
+
+% Rule for the operations done in between structure.
+operation --> declaration,operation.
+operation --> assignValue, operation.
+operation --> routine, operation.
+operation --> print, operation.
+operation--> structure,[;],operation.
+operation --> declaration.
+operation --> assignValue.
+operation --> routine.
+operation --> print.
+
+% Rule for the routines done in between operations.
+routine --> word,[:=],exp,[;],routine.
+routine --> structure,[;],routine.
+routine --> word,[:=],exp.
+routine --> [if], condition, [then], operation, [else], operation, [endif].
+routine -->[while],condition,[do],operation,[endwhile]|structure.
+routine --> [when], condition, [repeat], operation, [endrepeat].
+routine --> [when], word, [in], [range],["("],number,number,[")"],
+    [repeat],operation,[endrepeat].
+
