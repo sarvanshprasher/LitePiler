@@ -46,7 +46,7 @@ routine --> [when], word, [in], [range],["("],number,number,[")"],
     [repeat],operation,[endrepeat].
 
 % Rule for evaluating ternary expressions.
-ternary --> ["("],boolExp,[")"],["?"],generalValue,[:],generalValue. 
+ternary --> ["("],boolExp,[")"],["?"],generalValue,[:],generalValue.
 
 % Rule for conditions in routines.
 condition --> boolExp, [and], boolExp.
@@ -61,7 +61,7 @@ boolExp --> [false].
 boolExp --> [not], boolExp.
 boolExp --> exp,[=],exp.
 boolExp --> exp, [:=:], exp.
-boolExp --> exp, [~=], exp. 
+boolExp --> exp, [~=], exp.
 boolExp --> exp, [<],[=], exp.
 boolExp --> exp, [>],[=], exp.
 boolExp --> exp, [<], exp.
@@ -73,3 +73,22 @@ boolExp --> exp, [~=], boolExp.
 exp --> exp,horizontal,verticalExp | verticalExp.
 horizontal --> [+].
 horizontal --> [-].
+
+% Rule for evaluating the vertical expression(includes multiplication & division).
+verticalExp --> verticalExp,vertical,paranthesis | paranthesis.
+vertical --> [*].
+vertical --> [/].
+
+% Rule for evaluating the expression inside paranthesis.
+paranthesis --> ["("] , exp , [")"].
+paranthesis --> generalValue.
+
+% Rule for evaluating the expression inside paranthesis.
+generalValue --> word|number.
+
+% Rule for including word & numbers.
+word --> [X],{atom(X)}.
+number --> [X],{number(X)}.
+
+% Rule for printing values.
+print --> [display],exp,[;].
