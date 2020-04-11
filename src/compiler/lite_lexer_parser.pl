@@ -1,7 +1,7 @@
 :-table exp/2,verticalExp/2.
 
 % Rule for the main function of language.
-program -->structure,[.].
+program -->structure.
 
 % Rule for structure inside the program
 structure -->[enter],declaration,operation,[exit].
@@ -21,19 +21,24 @@ varType --> [string].
 
 % Rule for assigning values to variable.
 assignValue --> word, [=] ,exp, [;].
-assignValue -->  word, [is], boolExp, [;].
-assignValue -->  word, [=], ternary, [;].
+assignValue --> word, [=] ,wordLength, [;].
+assignValue --> word, [=] ,wordConcat, [;].
+assignValue --> word, [is], boolExp, [;].
+assignValue --> word, [=], ternary, [;].
 
 % Rule for the operations done in between structure.
 operation --> declaration,operation.
 operation --> assignValue, operation.
 operation --> routine, operation.
 operation --> print, operation.
+operation --> comment,operation.
 operation--> structure,[;],operation.
 operation --> declaration.
 operation --> assignValue.
 operation --> routine.
 operation --> print.
+operation --> comment.
+
 
 % Rule for the routines done in between operations.
 routine --> word,[:=],exp,[;],routine.
@@ -46,7 +51,7 @@ routine --> [when], word, [in], [range],["("],number,number,[")"],
     [repeat],operation,[endrepeat].
 
 % Rule for evaluating ternary expressions.
-ternary --> ["("],boolExp,[")"],["?"],generalValue,[:],generalValue.
+ternary --> ["("],boolExp,[")"],[?],generalValue,[:],generalValue.
 
 % Rule for conditions in routines.
 condition --> boolExp, [and], boolExp.
@@ -62,12 +67,12 @@ boolExp --> [not], boolExp.
 boolExp --> exp,[=],exp.
 boolExp --> exp, [:=:], exp.
 boolExp --> exp, [~=], exp.
-boolExp --> exp, [<],[=], exp.
-boolExp --> exp, [>],[=], exp.
-boolExp --> exp, [<], exp.
-boolExp --> exp, [>], exp.
 boolExp --> exp, [:=:], boolExp.
 boolExp --> exp, [~=], boolExp.
+boolExp --> exp, [<], exp.
+boolExp --> exp, [>], exp.
+boolExp --> exp, [<],[=], exp.
+boolExp --> exp, [>],[=], exp.
 
 % Rule for evaluating the horizontal expression(includes addition & difference).
 exp --> exp,horizontal,verticalExp | verticalExp.
@@ -86,9 +91,27 @@ paranthesis --> generalValue.
 % Rule for evaluating the expression inside paranthesis.
 generalValue --> word|number.
 
+% Rule for negative numbers.
+negativeNumber --> [-],number.
+
 % Rule for including word & numbers.
 word --> [X],{atom(X)}.
 number --> [X],{number(X)}.
 
 % Rule for printing values.
 print --> [display],exp,[;].
+
+% Rule for comments inside block.
+comment --> [!] , statement, [!].
+
+% Rules for statements inside comment.
+statement --> word,statement.
+statement --> number,statement.
+statement --> word.
+statement --> number.
+
+% Rule for finding length of string
+wordLength --> word,[.],[length].
+
+% Rule for string concatenation operation
+wordConcat --> word,[.],[join],[.],word
