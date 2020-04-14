@@ -1,30 +1,135 @@
+% @author Sarvansh Prasher
+% @version 1.0
+
+% @edited by Rohit Kumar Singh
+% @version 2.0
+
+% @edited by Surya Chatterjee
+% @version 3.0
+
+% @edited by Abhishek
+% @version 4.0
+
+% Name of Language : LitePiler
+
+% This file contains the lexer and parser part of programming language.
+% Role of lexer is to segregate the code in form of tokens
+% which will help parser to understand the code better.
+
+% Role of lexer is to find out if there is any unknown symbol which is being
+% used or to detect typos if there are any.
+
+% References for Lexer : Own interpreted programming language with prolog. Part 1 - Lexer
+% (https://steemit.com/science/@whd/own-interpreted-programming-language-with-prolog-part-1-lexer)
+
+%-----------------------------%%%%%%%%%%%%%%%%%%%-------------------------------
+
+lexer(Tokens) -->
+    white_space,
+    (( ";",  !, { Token = ; };
+        "!",  !, { Token = ! };
+        "enter",  !, { Token = enter };
+        "exit",  !, { Token = exit };
+        "when",  !, { Token = when };
+        "in",  !, { Token = in };
+        "range",  !, { Token = range };
+        "repeat",  !, { Token = repeat };
+        "endrepeat",  !, { Token = endrepeat };
+        "if",  !, { Token = if };
+        "then",  !, { Token = then };
+        "else",  !, { Token = else };
+        "endif",  !, { Token = endif };
+        "while",  !, { Token = while };
+        "do",  !, { Token = do };
+        "endwhile",  !, { Token = endwhile };
+        "true",  !, { Token = true };
+        "false",  !, { Token = false };
+        "and",  !, { Token = and };
+        "or",  !, { Token = or };
+        "not",  !, { Token = not };
+        "~",  !, { Token = ~ };
+        "int",  !, { Token = var };
+        "bool",  !, { Token = bool };
+        "String",  !, { Token = String};
+        ">",  !, { Token = > };
+        "<",  !, { Token = < };
+        "<=", !, { Token = <= };
+        ">=", !, { Token = >= };
+        "~=", !, { Token = ~= };
+        "+",  !, { Token = +  };
+        "-",  !, { Token = -  };
+        "*",  !, { Token = *  };
+        "/", !, { Token = /  };
+        "=",  !, { Token = =  };
+        ":=:",  !, { Token = :=:  };
+        "is",  !, { Token = is  };
+        ":", !, {Token = :};
+        "?", !, {Token = ?};
+        ".", !, {Token = .};
+        "length", !, {Token = length};
+        "join", !, {Token = join};
+        "display", !, {Token = display};
+        digit(D),  !, number(D, N), { Token = N };
+        lowletter(L), !, identifier(L, Id),{  Token = Id};
+        upletter(L), !, identifier(L, Id), { Token = Id };
+        [Un], { Token = tkUnknown, throw((unrecognized_token, Un)) }),!,
+        { Tokens = [Token | TokList] },lexer(TokList);
+    	  [],{ Tokens = [] }).
+
+white_space --> [Char], { code_type(Char,space) }, !, white_space.
+white_space --> [].
+
+digit(D) -->[D], { code_type(D, digit) }.
+digits([D|T]) --> digit(D),!,digits(T).
+digits([]) -->[].
+
+number(D, N) -->digits(Ds),      { number_chars(N, [D|Ds]) }.
+
+upletter(L) -->[L], { code_type(L, upper) }.
+
+lowletter(L) -->[L], { code_type(L, lower) }.
+
+alphanum([A|T]) --> [A], { code_type(A, csym) }, !, alphanum(T).
+
+alphanum([]) --> [].
+
+identifier(L, Id) --> alphanum(As),{ atom_codes(Id, [L|As]) }.
+
+
+%-----------------------------%%%%%%%%%%%%%%%%%%%-------------------------------
+
 :-table exp/2,verticalExp/2.
 
 % Rule for the main function of language.
-program -->structure.
+program(t_program(Structure)) -->structure(Structure).
 
 % Rule for structure inside the program
-structure -->[enter],declaration,operation,[exit].
+structure(t_structure(Declaration,Operation)) -->[enter],declaration(Declaration),
+    										operation(Operation),[exit].
 
 % Rule for declarations inside the structure
-declaration -->[const],word,[=],number,[;],declaration.
-declaration -->varType,word,[;],declaration.
-declaration --> varType,word,[=],word,[;],declaration.
-declaration--> [const],word,[=],number.
-declaration--> varType,word.
-declaration --> varType,word,[=],word.
+declaration(t_declaration(GeneralValue,Expression)) -->[const],generalValue(GeneralValue),
+    										[=],exp(Expression),[;],declaration.
+declaration(t_declaration(VarType,GeneralValue)) --> varType(VarType),
+    				generalValue(GeneralValue),[;],declaration.
+declaration(t_declaration()) --> [].
 
 % Rule for variable types in language.
-varType --> [int].
-varType --> [bool].
-varType --> [string].
+varType(t_vartype(int)) --> [int].
+varType(t_vartype(bool)) --> [bool].
+varType(t_vartype(string)) --> [string].
 
 % Rule for assigning values to variable.
-assignValue --> word, [=] ,exp, [;].
-assignValue --> word, [=] ,wordLength, [;].
-assignValue --> word, [=] ,wordConcat, [;].
-assignValue --> word, [is], boolExp, [;].
-assignValue --> word, [=], ternary, [;].
+assignValue(t_assign_expression(GeneralValue,Expression)) --> generalValue(GeneralValue),
+    													[=] ,exp(Expression), [;].
+assignValue(t_assign_wordlength(GeneralValue,WordLength)) --> generalValue(GeneralValue),
+                                                                 [=] ,wordLength(WordLength), [;].
+assignValue(t_assign_wordconcat(GeneralValue,WordConcat)) --> generalValue(GeneralValue)
+                                                                 , [=] ,wordConcat(WordConcat), [;].
+assignValue(t_assign_boolexp(GeneralValue,BoolExpression)) --> generalValue(GeneralValue),
+                                                                 [is], boolExp(BoolExpression), [;].
+assignValue(t_assign_ternary(GeneralValue,TernaryExpression))  --> generalValue(GeneralValue),
+                                                                  [=], ternary(TernaryExpression), [;].
 
 % Rule for the operations done in between structure.
 operation --> declaration,operation.
@@ -114,4 +219,4 @@ statement --> number.
 wordLength --> word,[.],[length].
 
 % Rule for string concatenation operation
-wordConcat --> word,[.],[join],[.],word
+wordConcat --> word,[.],[join],[.],word.
