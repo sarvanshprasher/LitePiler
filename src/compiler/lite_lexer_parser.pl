@@ -97,79 +97,67 @@ identifier(L, Id) --> alphanum(As),{ atom_codes(Id, [L|As]) }.
 
 
 %-----------------------------%%%%%%%%%%%%%%%%%%%-------------------------------
+% Parser for language
 
-:-table exp/2,verticalExp/2.
+:- use_rendering(svgtree).
+
+:- table exp/3,verticalExp/3.
 
 % Rule for the main function of language.
-program(t_program(Structure)) -->structure(Structure).
+program(t_program(Structure)) --> structure(Structure).
 
 % Rule for structure inside the program
 structure(t_structure(Declaration,Operation)) -->[enter],declaration(Declaration),
     										operation(Operation),[exit].
-
-% Rule for declarations inside the structure
-declaration(t_declaration(GeneralValue,Expression)) -->[const],generalValue(GeneralValue),
-    										[=],exp(Expression),[;],declaration.
-declaration(t_declaration(VarType,GeneralValue)) --> varType(VarType),
-    				generalValue(GeneralValue),[;],declaration.
-declaration(t_declaration()) --> [].
 
 % Rule for variable types in language.
 varType(t_vartype(int)) --> [int].
 varType(t_vartype(bool)) --> [bool].
 varType(t_vartype(string)) --> [string].
 
+% Rule for declarations inside the structure
+
+declaration(t_declaration(GeneralValue,Expression)) -->[const],generalValue(GeneralValue),
+    										[=],exp(Expression),[;].
+declaration(t_declaration(GeneralValue)) -->[const],generalValue(GeneralValue),[;].
+declaration(t_declaration(VarType,GeneralValue)) --> varType(VarType),
+    				generalValue(GeneralValue),[;].
+
 % Rule for assigning values to variable.
 assignValue(t_assign_expression(GeneralValue,Expression)) --> generalValue(GeneralValue),
     													[=] ,exp(Expression), [;].
+assignValue(t_assign_boolexp(GeneralValue,BoolExpression)) --> generalValue(GeneralValue),
+                                                                 [is], boolExp(BoolExpression), [;].
 assignValue(t_assign_wordlength(GeneralValue,WordLength)) --> generalValue(GeneralValue),
                                                                  [=] ,wordLength(WordLength), [;].
 assignValue(t_assign_wordconcat(GeneralValue,WordConcat)) --> generalValue(GeneralValue)
                                                                  , [=] ,wordConcat(WordConcat), [;].
-assignValue(t_assign_boolexp(GeneralValue,BoolExpression)) --> generalValue(GeneralValue),
-                                                                 [is], boolExp(BoolExpression), [;].
 assignValue(t_assign_ternary(GeneralValue,TernaryExpression))  --> generalValue(GeneralValue),
                                                                   [=], ternary(TernaryExpression), [;].
+
 % Rule for the operations done in between structure.
 
 operation(t_operation(Declaration,Operation)) --> declaration(Declaration),operation(Operation).
-
 operation(t_operation(AssignValue,Operation)) --> assignValue(AssignValue), operation(Operation).
-
 operation(t_operation(Routine,Operation)) --> routine(Routine), operation(Operation).
-
 operation(t_operation(Print,Operation)) --> print(Print), operation(Operation).
-
 operation(t_operation(Comment,Operation))  --> comment(Comment),operation(Operation).
-
 operation(t_operation(Structure,Operation))--> structure(Structure),[;],operation(Operation).
-
 operation(t_operation(Declaration)) --> declaration(Declaration).
-
 operation(t_operation(AssignValue)) --> assignValue(AssignValue).
-
 operation(t_operation(Routine)) --> routine(Routine).
-
 operation(t_operation(Print)) --> print(Print).
-
 operation(t_operation(Comment)) --> comment(Comment).
-
 
 % Rule for the routines done in between operations.
 
 routine(t_routine_structure(Structure)) --> structure(Structure),[;].
-
 routine(t_if_routine(Condition,TrueOperation,FalseOperation)) --> [if], condition(Condition), [then],
-
                                           operation(TrueOperation), [else], operation(FalseOperation), [endif].
-
 routine(t_while_routine(Condition,Operation)) -->[while],condition(Condition),[do],operation(Operation),[endwhile].
-
 routine(t_for_routine(Condition,Operation)) --> [when], condition(Condition), [repeat], operation(Operation), [endrepeat].
-
 routine(t_for_range_routine(GeneralValue,FromNumber,ToNumber,Operation)) --> [when], generalValue(GeneralValue), [in], [range],["("],number(FromNumber),number(ToNumber),[")"],
-
-    [repeat],operation(Operation),[endrepeat].
+                                                                             [repeat],operation(Operation),[endrepeat].
 
 % Rule for evaluating ternary expressions.
 ternary --> ["("],boolExp,[")"],[?],generalValue,[:],generalValue.
