@@ -130,30 +130,46 @@ assignValue(t_assign_boolexp(GeneralValue,BoolExpression)) --> generalValue(Gene
                                                                  [is], boolExp(BoolExpression), [;].
 assignValue(t_assign_ternary(GeneralValue,TernaryExpression))  --> generalValue(GeneralValue),
                                                                   [=], ternary(TernaryExpression), [;].
-
 % Rule for the operations done in between structure.
-operation --> declaration,operation.
-operation --> assignValue, operation.
-operation --> routine, operation.
-operation --> print, operation.
-operation --> comment,operation.
-operation--> structure,[;],operation.
-operation --> declaration.
-operation --> assignValue.
-operation --> routine.
-operation --> print.
-operation --> comment.
+
+operation(t_operation(Declaration,Operation)) --> declaration(Declaration),operation(Operation).
+
+operation(t_operation(AssignValue,Operation)) --> assignValue(AssignValue), operation(Operation).
+
+operation(t_operation(Routine,Operation)) --> routine(Routine), operation(Operation).
+
+operation(t_operation(Print,Operation)) --> print(Print), operation(Operation).
+
+operation(t_operation(Comment,Operation))  --> comment(Comment),operation(Operation).
+
+operation(t_operation(Structure,Operation))--> structure(Structure),[;],operation(Operation).
+
+operation(t_operation(Declaration)) --> declaration(Declaration).
+
+operation(t_operation(AssignValue)) --> assignValue(AssignValue).
+
+operation(t_operation(Routine)) --> routine(Routine).
+
+operation(t_operation(Print)) --> print(Print).
+
+operation(t_operation(Comment)) --> comment(Comment).
 
 
 % Rule for the routines done in between operations.
-routine --> word,[:=],exp,[;],routine.
-routine --> structure,[;],routine.
-routine --> word,[:=],exp.
-routine --> [if], condition, [then], operation, [else], operation, [endif].
-routine -->[while],condition,[do],operation,[endwhile]|structure.
-routine --> [when], condition, [repeat], operation, [endrepeat].
-routine --> [when], word, [in], [range],["("],number,number,[")"],
-    [repeat],operation,[endrepeat].
+
+routine(t_routine_structure(Structure)) --> structure(Structure),[;].
+
+routine(t_if_routine(Condition,TrueOperation,FalseOperation)) --> [if], condition(Condition), [then],
+
+                                          operation(TrueOperation), [else], operation(FalseOperation), [endif].
+
+routine(t_while_routine(Condition,Operation)) -->[while],condition(Condition),[do],operation(Operation),[endwhile].
+
+routine(t_for_routine(Condition,Operation)) --> [when], condition(Condition), [repeat], operation(Operation), [endrepeat].
+
+routine(t_for_range_routine(GeneralValue,FromNumber,ToNumber,Operation)) --> [when], generalValue(GeneralValue), [in], [range],["("],number(FromNumber),number(ToNumber),[")"],
+
+    [repeat],operation(Operation),[endrepeat].
 
 % Rule for evaluating ternary expressions.
 ternary --> ["("],boolExp,[")"],[?],generalValue,[:],generalValue.
