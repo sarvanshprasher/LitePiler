@@ -22,7 +22,15 @@
 % References for Lexer : Own interpreted programming language with prolog. Part 1 - Lexer
 % (https://steemit.com/science/@whd/own-interpreted-programming-language-with-prolog-part-1-lexer)
 
+%% Sample parser run query :
+%% trace, (L = [enter,string,sar,;,const, x, ;,int, y, ;, int, z,;,x,=,1,;
+%% ,!,t,s,roh,!,z,=,sar,.,length,;,if, x, :=:, y, +, 2, then, z , = , 5, ;,else, z, =, 3, ;,endif,
+%% while, not, x, :=:, z, do, z, =, z, +, 2,;, endwhile,when,i,in,range,"(",1,4,")",repeat,x,=,2,;
+%% ,endrepeat,display,x,;,exit],program(P, L, [])).
+
 %-----------------------------%%%%%%%%%%%%%%%%%%%-------------------------------
+
+% Lexer for conversion
 
 lexer(Tokens) -->
     white_space,
@@ -50,7 +58,7 @@ lexer(Tokens) -->
         "~",  !, { Token = ~ };
         "int",  !, { Token = var };
         "bool",  !, { Token = bool };
-        "String",  !, { Token = String};
+        "String",  !, { Token = string};
         ">",  !, { Token = > };
         "<",  !, { Token = < };
         "<=", !, { Token = <= };
@@ -94,7 +102,6 @@ alphanum([A|T]) --> [A], { code_type(A, csym) }, !, alphanum(T).
 alphanum([]) --> [].
 
 identifier(L, Id) --> alphanum(As),{ atom_codes(Id, [L|As]) }.
-
 
 %-----------------------------%%%%%%%%%%%%%%%%%%%-------------------------------
 % Parser for language
