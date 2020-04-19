@@ -82,7 +82,7 @@ lexer(Tokens) -->
         upletter(L), !, identifier(L, Id), { Token = Id };
         [Un], { Token = tkUnknown, throw((unrecognized_token, Un)) }),!,
         { Tokens = [Token | TokList] },lexer(TokList);
-	  [],{ Tokens = [] }).
+    	  [],{ Tokens = [] }).
 
 white_space --> [Char], { code_type(Char,space) }, !, white_space.
 white_space --> [].
@@ -115,7 +115,7 @@ program(t_program(Structure)) --> structure(Structure).
 
 % Rule for structure inside the program
 structure(t_structure(Declaration,Operation)) -->[enter],declaration(Declaration),
-										operation(Operation),[exit].
+    										operation(Operation),[exit].
 
 % Rule for variable types in language.
 varType(t_vartype(int)) --> [int].
@@ -125,14 +125,14 @@ varType(t_vartype(string)) --> [string].
 % Rule for declarations inside the structure
 
 declaration(t_declaration(GeneralValue,Expression)) -->[const],generalValue(GeneralValue),
-										[=],exp(Expression),[;].
+    										[=],exp(Expression),[;].
 declaration(t_declaration(GeneralValue)) -->[const],generalValue(GeneralValue),[;].
 declaration(t_declaration(VarType,GeneralValue)) --> varType(VarType),
-				generalValue(GeneralValue),[;].
+    				generalValue(GeneralValue),[;].
 
 % Rule for assigning values to variable.
 assignValue(t_assign_expression(GeneralValue,Expression)) --> generalValue(GeneralValue),
-													[=] ,exp(Expression), [;].
+    													[=] ,exp(Expression), [;].
 assignValue(t_assign_boolexp(GeneralValue,BoolExpression)) --> generalValue(GeneralValue),
                                                                  [is], boolExp(BoolExpression), [;].
 assignValue(t_assign_wordlength(GeneralValue,WordLength)) --> generalValue(GeneralValue),
@@ -189,75 +189,44 @@ boolExp(t_less_than_equal_expression(Expression1,Expression2)) --> exp(Expressio
 boolExp(t_greater_than_equal_expression(Expression1,Expression2)) -->  exp(Expression1), [>],[=], exp(Expression2).
 
 % Rule for evaluating the horizontal expression(includes addition & difference).
-exp(t_horizontal_expression(Expression,Horizontal,VerticalExpression)) --> exp(Expression),horizontal(Horizontal),		verticalExp(VerticalExpression).
+exp(t_horizontal_expression(Expression,Horizontal,VerticalExpression)) --> exp(Expression),horizontal(Horizontal), 		verticalExp(VerticalExpression).
 exp(Expression) --> verticalExp(Expression).
 horizontal(t_horizontal(+)) --> [+].
 horizontal(t_horizontal(-)) --> [-].
 
 % Rule for evaluating the vertical expression(includes multiplication & division).
-
-verticalExp(t_vertical_expression(Expression,Vertical,ParanthesisExpression)) -->
-    verticalExp(Expression),vertical(Vertical),
-    paranthesis(ParanthesisExpression).
-verticalExp(Paranthesis) --> paranthesis(Paranthesis).
-vertical(t_vertical(*)) --> [*].
-vertical(t_vertical(/)) --> [/].
+verticalExp --> verticalExp,vertical,paranthesis | paranthesis.
+vertical --> [*].
+vertical --> [/].
 
 % Rule for evaluating the expression inside paranthesis.
-paranthesis(t_paranthesis(Expression)) --> ["("] , exp(Expression) , [")"].
-paranthesis(t_paranthesis(GeneralValue)) --> generalValue(GeneralValue).
+paranthesis --> ["("] , exp , [")"].
+paranthesis --> generalValue.
 
 % Rule for evaluating the expression inside paranthesis.
-generalValue(Word) --> word(Word).
-generalValue(Number) --> number(Number).
+generalValue --> word|number.
 
 % Rule for negative numbers.
-negativeNumber(t_negative_number(Number)) --> [-],number(Number).
+negativeNumber --> [-],number.
 
 % Rule for including word & numbers.
-word(t_word(Word)) --> [Word],{atom(Word)}.
-number(t_number(Number)) --> [Number],{number(Number)}.
+word --> [X],{atom(X)}.
+number --> [X],{number(X)}.
 
 % Rule for printing values.
-print(t_print_expression(Expression)) --> [display],exp(Expression),[;].
+print --> [display],exp,[;].
 
 % Rule for comments inside block.
-comment(t_comment(Statement)) --> [!] , statement(Statement), [!].
+comment --> [!] , statement, [!].
 
 % Rules for statements inside comment.
-statement(t_statement(Word,Statement)) --> word(Word),statement(Statement).
-statement(t_statement(Number,Statement)) --> number(Number),statement(Statement).
-statement(t_statement(Word)) --> word(Word).
-statement(t_statement(Number)) --> number(Number).
+statement --> word,statement.
+statement --> number,statement.
+statement --> word.
+statement --> number.
 
 % Rule for finding length of string
-wordLength(t_wordlength(Word)) --> word(Word),[.],[length].
+wordLength --> word,[.],[length].
 
 % Rule for string concatenation operation
-wordConcat(t_word_concat(Word,Word)) --> word(Word),[.],[join],[.],word(Word).
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+wordConcat --> word,[.],[join],[.],word.
