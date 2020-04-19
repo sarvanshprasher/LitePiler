@@ -167,33 +167,32 @@ routine(t_for_range_routine(GeneralValue,FromNumber,ToNumber,Operation)) --> [wh
                                                                              [repeat],operation(Operation),[endrepeat].
 
 % Rule for evaluating ternary expressions.
-ternary --> ["("],boolExp,[")"],[?],generalValue,[:],generalValue.
+ternary(t_ternary(BoolExp,GeneralValue1,GeneralValue2)) --> ["("],boolExp(BoolExp),[")"],[?],generalValue(GeneralValue1),[:],generalValue(GeneralValue2).
 
 % Rule for conditions in routines.
-condition --> boolExp, [and], boolExp.
-condition --> boolExp, [or], boolExp.
-condition --> [~], boolExp.
-condition --> [not], boolExp.
-condition --> boolExp.
+condition(t_and_condition(BoolExp1,BoolExp2)) --> boolExp(BoolExp1), [and], boolExp(BoolExp2).
+condition(t_or_condition(BoolExp1,BoolExp2)) --> boolExp(BoolExp1), [or], boolExp(BoolExp2).
+condition(t_not_condition(BoolExp1)) --> [~], boolExp(BoolExp1).
+condition(t_not_condition(BoolExp1)) --> [not], boolExp(BoolExp1).
+condition(t_condition(BoolExp)) --> boolExp(BoolExp).
 
 % Rule for determining boolean expression.
-boolExp --> [true].
-boolExp --> [false].
-boolExp --> [not], boolExp.
-boolExp --> exp,[=],exp.
-boolExp --> exp, [:=:], exp.
-boolExp --> exp, [~=], exp.
-boolExp --> exp, [:=:], boolExp.
-boolExp --> exp, [~=], boolExp.
-boolExp --> exp, [<], exp.
-boolExp --> exp, [>], exp.
-boolExp --> exp, [<],[=], exp.
-boolExp --> exp, [>],[=], exp.
+boolExp(t_true_expression(true)) --> [true].
+boolExp(t_false_expression(false)) --> [false].
+boolExp(t_equal_expression(Expression1,Expression2)) --> exp(Expression1),[:=:],exp(Expression2).
+boolExp(t_not_equal_expression(Expression1,Expression2)) --> exp(Expression1), [~=], exp(Expression2).
+boolExp(t_bool_equal_expression(Expression,BoolExpression)) --> exp(Expression), [:=:], boolExp(BoolExpression).
+boolExp(t_bool_not_equal_expression(Expression,BoolExpression)) --> exp(Expression), [~=], boolExp(BoolExpression).
+boolExp(t_less_than_expression(Expression1,Expression2)) --> exp(Expression1), [<], exp(Expression2).
+boolExp(t_greater_than_expression(Expression1,Expression2)) --> exp(Expression1), [>], exp(Expression2).
+boolExp(t_less_than_equal_expression(Expression1,Expression2)) --> exp(Expression1), [<],[=], exp(Expression2).
+boolExp(t_greater_than_equal_expression(Expression1,Expression2)) -->  exp(Expression1), [>],[=], exp(Expression2).
 
 % Rule for evaluating the horizontal expression(includes addition & difference).
-exp --> exp,horizontal,verticalExp | verticalExp.
-horizontal --> [+].
-horizontal --> [-].
+exp(t_horizontal_expression(Expression,Horizontal,VerticalExpression)) --> exp(Expression),horizontal(Horizontal), 		verticalExp(VerticalExpression).
+exp(Expression) --> verticalExp(Expression).
+horizontal(t_horizontal(+)) --> [+].
+horizontal(t_horizontal(-)) --> [-].
 
 % Rule for evaluating the vertical expression(includes multiplication & division).
 verticalExp --> verticalExp,vertical,paranthesis | paranthesis.
