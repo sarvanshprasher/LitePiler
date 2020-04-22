@@ -60,3 +60,56 @@ eval_assign(t_assign(Identifier,TernaryExpression),EnvIn,EnvOut) :- eval_word(Id
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % TODO : eval assign for wordconcat,ternary.
+
+
+eval_read(t_read_input(Identifier), EnvIn, EnvOut):- read(Id), eval_word(Identifier,_,EnvIn,EnvIn1,Ident),
+                                        update(Ident, Id, EnvIn1, EnvOut).
+
+% 'eval_operation' evaluates the operation block.
+
+eval_operation(t_operation(AssignValue,Operation), EnvIn, EnvOut) :- eval_assign(AssignValue, EnvIn, EnvIn1),
+                                                                     eval_operation(Operation,EnvIn1,EnvOut),!.
+
+eval_operation(t_operation(Routine,Operation), EnvIn, EnvOut) :- eval_routine(Routine, EnvIn, EnvIn1),
+                                                                  eval_operation(Operation,EnvIn1,EnvOut),!.
+
+eval_operation(t_operation(Print,Operation), EnvIn, EnvOut) :- eval_print(Print, EnvIn, EnvIn1),
+                                                                eval_operation(Operation,EnvIn1,EnvOut),!.
+
+eval_operation(t_operation(ReadValue,Operation), EnvIn, EnvOut) :- eval_read(ReadValue, EnvIn, EnvIn1),
+                                                                eval_operation(Operation,EnvIn1,EnvOut),!.
+
+eval_operation(t_operation(AssignValue), EnvIn, EnvOut) :- eval_assign(AssignValue, EnvIn, EnvOut),!.
+
+eval_operation(t_operation(Routine), EnvIn, EnvOut) :- eval_routine(Routine, EnvIn, EnvOut),!.
+
+eval_operation(t_operation(Print), EnvIn, EnvOut) :- eval_print(Print, EnvIn, EnvOut),!.
+
+eval_operation(t_operation(ReadValue), EnvIn, EnvOut) :- eval_read(ReadValue, EnvIn, EnvOut),!.
+
+% 'eval_routine' evaluates the operation block.
+
+eval_routine(t_if_routine(Boolean,_,FalseRoutine),EnvIn,EnvOut):-eval_condition(Boolean,Val,EnvIn,EnvIn),
+                                                              Val = false,!,
+                                                              eval_operation(FalseRoutine,EnvIn,EnvOut).
+
+eval_routine(t_if_routine(Boolean,TrueRoutine,_),EnvIn,EnvOut):- eval_condition(Boolean,Val,EnvIn,EnvIn),
+                                                              Val = true,
+                                                              eval_operation(TrueRoutine,EnvIn,EnvOut).
+
+eval_routine(t_while_routine(Boolean,_),EnvIn,EnvOut):- eval_condition(Boolean,Val,EnvIn,EnvIn), Val = false,!,EnvOut = EnvIn.
+
+eval_routine(t_while_routine(Boolean,Routine),EnvIn,EnvOut) :- eval_condition(Boolean,Val,EnvIn,EnvIn),Val = true ,
+                                                              eval_operation(Routine,EnvIn,EnvIn1),
+                                                              eval_routine(t_while_routine(Boolean,Routine),EnvIn1,EnvOut).
+
+eval_routine(t_inc_operator(Identifier),EnvIn,EnvOut) :- eval_expr(Identifier,Val,EnvIn,EnvIn), Val1 is Val + 1,
+    update(Identifier,Val1,EnvIn,EnvOut).
+
+eval_routine(t_dec_operator(Identifier),EnvIn,EnvOut) :- eval_expr(Identifier,Val,EnvIn,EnvIn), Val1 is Val - 1,
+    update(Identifier,Val1,EnvIn,EnvOut).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TODO : eval routine for loop(traditional and range)
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
