@@ -28,6 +28,28 @@
 %% while, not, x, :=:, z, do, z, =, z, +, 2,;, endwhile,when,i,in,range,"(",1,4,")",repeat,x,=,2,;
 %% ,endrepeat,display,x,;,exit],program(P, L, [])).
 
+:- style_check(-singleton).
+
+litepiler(FileName) :- open(FileName, read, InStream),
+              tokenCodes(InStream, TokenCodes),
+               phrase(lexer(Tokens), TokenCodes),
+              parse(ParseTree, Tokens, []),
+              close(InStream),
+              split_string(FileName, ".", "", L),
+              L = [H|_T],
+              atom_concat(H, ".lpy", X),
+              open(X, write, OutStream),
+              write(OutStream, ParseTree),
+              write(OutStream, '.'),
+              close(OutStream),
+              eval_parse(ParseTree, EnvOut).
+
+
+%-----------------------------%%%%%%%%%%%%%%%%%%%-------------------------------
+
+tokenCodes(InStream, []) :- at_end_of_stream(InStream), !.
+tokenCodes(InStream, [TokenCode|RemTokens]) :- get_code(InStream, TokenCode), tokenCodes(InStream, RemTokens).
+
 %-----------------------------%%%%%%%%%%%%%%%%%%%-------------------------------
 
 % Lexer for conversion
@@ -77,6 +99,7 @@ lexer(Tokens) -->
         "length", !, {Token = length};
         "join", !, {Token = join};
         "display", !, {Token = display};
+     	"input", !, {Token = input};
         digit(D),  !, number(D, N), { Token = N };
         lowletter(L), !, identifier(L, Id),{  Token = Id};
         upletter(L), !, identifier(L, Id), { Token = Id };
@@ -103,6 +126,7 @@ alphanum([]) --> [].
 
 identifier(L, Id) --> alphanum(As),{ atom_codes(Id, [L|As]) }.
 
+
 %-----------------------------%%%%%%%%%%%%%%%%%%%-------------------------------
 % Parser for language
 
@@ -110,12 +134,14 @@ identifier(L, Id) --> alphanum(As),{ atom_codes(Id, [L|As]) }.
 
 :- table exp/3,verticalExp/3.
 
+parse(Program) --> program(Program).
+
 % Rule for the main function of language.
 program(t_program(Structure)) --> structure(Structure).
 
 % Rule for structure inside the program
 structure(t_structure(Declaration,Operation)) -->[enter],declaration(Declaration),
-										operation(Operation),[exit].
+    										operation(Operation),[exit].
 
 % Rule for variable types in language.
 varType(t_vartype(int)) --> [int].
@@ -123,62 +149,67 @@ varType(t_vartype(bool)) --> [bool].
 varType(t_vartype(string)) --> [string].
 
 % Rule for declarations inside the structure
-
-declaration(t_declaration(GeneralValue,Expression)) -->[const],generalValue(GeneralValue),
-										[=],exp(Expression),[;].
-declaration(t_declaration(GeneralValue)) -->[const],generalValue(GeneralValue),[;].
 declaration(t_declaration(VarType,GeneralValue)) --> varType(VarType),
-				generalValue(GeneralValue),[;].
+   				word(GeneralValue),[;].
+declaration(t_declaration(VarType,GeneralValue,Declaration)) --> varType(VarType),
+  				word(GeneralValue),[;],declaration(Declaration).
 
 % Rule for assigning values to variable.
-assignValue(t_assign_expression(GeneralValue,Expression)) --> generalValue(GeneralValue),
-													[=] ,exp(Expression), [;].
-assignValue(t_assign_boolexp(GeneralValue,BoolExpression)) --> generalValue(GeneralValue),
+assignValue(t_assign(GeneralValue,Expression)) --> word(GeneralValue),
+    													[=] ,exp(Expression), [;].
+assignValue(t_assign(GeneralValue,BoolExpression)) --> word(GeneralValue),
                                                                  [is], boolExp(BoolExpression), [;].
-assignValue(t_assign_wordlength(GeneralValue,WordLength)) --> generalValue(GeneralValue),
+assignValue(t_assign_wordlength(GeneralValue,WordLength)) --> word(GeneralValue),
                                                                  [=] ,wordLength(WordLength), [;].
-assignValue(t_assign_wordconcat(GeneralValue,WordConcat)) --> generalValue(GeneralValue)
+assignValue(t_assign_wordconcat(GeneralValue,WordConcat)) --> word(GeneralValue)
                                                                  , [=] ,wordConcat(WordConcat), [;].
-assignValue(t_assign_ternary(GeneralValue,TernaryExpression))  --> generalValue(GeneralValue),
+assignValue(t_assign(GeneralValue,TernaryExpression))  --> word(GeneralValue),
                                                                   [=], ternary(TernaryExpression), [;].
 
-% Rule for the operations done in between structure.
+% Rule for reading the input from system.
+readValue(t_read_input(Identifier)) --> [input], word(Identifier), [;].
 
-operation(t_operation(Declaration,Operation)) --> declaration(Declaration),operation(Operation).
+% Rule for the operations done in between structure.
 operation(t_operation(AssignValue,Operation)) --> assignValue(AssignValue), operation(Operation).
 operation(t_operation(Routine,Operation)) --> routine(Routine), operation(Operation).
 operation(t_operation(Print,Operation)) --> print(Print), operation(Operation).
 operation(t_operation(Comment,Operation))  --> comment(Comment),operation(Operation).
-operation(t_operation(Structure,Operation))--> structure(Structure),[;],operation(Operation).
-operation(t_operation(Declaration)) --> declaration(Declaration).
+operation(t_operation(ReadValue, Operation)) --> readValue(ReadValue), operation(Operation).
 operation(t_operation(AssignValue)) --> assignValue(AssignValue).
 operation(t_operation(Routine)) --> routine(Routine).
 operation(t_operation(Print)) --> print(Print).
 operation(t_operation(Comment)) --> comment(Comment).
+operation(t_operation(ReadValue)) --> readValue(ReadValue).
 
 % Rule for the routines done in between operations.
-
-routine(t_routine_structure(Structure)) --> structure(Structure),[;].
 routine(t_if_routine(Condition,TrueOperation,FalseOperation)) --> [if], condition(Condition), [then],
                                           operation(TrueOperation), [else], operation(FalseOperation), [endif].
 routine(t_while_routine(Condition,Operation)) -->[while],condition(Condition),[do],operation(Operation),[endwhile].
 routine(t_for_routine(Condition,Operation)) --> [when], condition(Condition), [repeat], operation(Operation), [endrepeat].
-routine(t_for_range_routine(GeneralValue,FromNumber,ToNumber,Operation)) --> [when], generalValue(GeneralValue), [in], [range],["("],number(FromNumber),number(ToNumber),[")"],
-                                                                             [repeat],operation(Operation),[endrepeat].
+routine(t_for_range_routine(GeneralValue,FromNumber,ToNumber,Operation)) --> [when], word(GeneralValue), [in], [range],["("],number(FromNumber),number(ToNumber),[")"],
+    [repeat],operation(Operation),[endrepeat].
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TODO : See if this fits anywhere else then routine.
+
+routine(t_inc_operator(Identifier)) --> word(Identifier),[+],[+],[;].
+routine(t_dec_operator(Identifier)) --> word(Identifier),[-],[-],[;].
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 % Rule for evaluating ternary expressions.
-ternary(t_ternary(BoolExp,GeneralValue1,GeneralValue2)) --> ["("],boolExp(BoolExp),[")"],[?],generalValue(GeneralValue1),[:],generalValue(GeneralValue2).
+ternary(t_ternary(BoolExp,GeneralValue1,GeneralValue2)) --> ["("],boolExp(BoolExp),[")"],[?],exp(GeneralValue1),[:],exp(GeneralValue2).
 
 % Rule for conditions in routines.
 condition(t_and_condition(BoolExp1,BoolExp2)) --> boolExp(BoolExp1), [and], boolExp(BoolExp2).
 condition(t_or_condition(BoolExp1,BoolExp2)) --> boolExp(BoolExp1), [or], boolExp(BoolExp2).
-condition(t_not_condition(BoolExp1)) --> [~], boolExp(BoolExp1).
 condition(t_not_condition(BoolExp1)) --> [not], boolExp(BoolExp1).
 condition(t_condition(BoolExp)) --> boolExp(BoolExp).
 
 % Rule for determining boolean expression.
-boolExp(t_true_expression(true)) --> [true].
-boolExp(t_false_expression(false)) --> [false].
+boolExp(t_bool_exp(true)) --> [true].
+boolExp(t_bool_exp(false)) --> [false].
 boolExp(t_equal_expression(Expression1,Expression2)) --> exp(Expression1),[:=:],exp(Expression2).
 boolExp(t_not_equal_expression(Expression1,Expression2)) --> exp(Expression1), [~=], exp(Expression2).
 boolExp(t_bool_equal_expression(Expression,BoolExpression)) --> exp(Expression), [:=:], boolExp(BoolExpression).
@@ -189,37 +220,32 @@ boolExp(t_less_than_equal_expression(Expression1,Expression2)) --> exp(Expressio
 boolExp(t_greater_than_equal_expression(Expression1,Expression2)) -->  exp(Expression1), [>],[=], exp(Expression2).
 
 % Rule for evaluating the horizontal expression(includes addition & difference).
-exp(t_horizontal_expression(Expression,Horizontal,VerticalExpression)) --> exp(Expression),horizontal(Horizontal),		verticalExp(VerticalExpression).
-exp(Expression) --> verticalExp(Expression).
-horizontal(t_horizontal(+)) --> [+].
-horizontal(t_horizontal(-)) --> [-].
+exp(t_add_horizontal_expression(Expression,VerticalExpression)) --> verticalExp(VerticalExpression),[+],exp(Expression).
+exp(t_sub_horizontal_expression(Expression,VerticalExpression)) --> verticalExp(VerticalExpression),[-],exp(Expression).
+exp(t_expr(Expression)) --> verticalExp(Expression).
 
 % Rule for evaluating the vertical expression(includes multiplication & division).
 
-verticalExp(t_vertical_expression(Expression,Vertical,ParanthesisExpression)) -->
-    verticalExp(Expression),vertical(Vertical),
-    paranthesis(ParanthesisExpression).
-verticalExp(Paranthesis) --> paranthesis(Paranthesis).
-vertical(t_vertical(*)) --> [*].
-vertical(t_vertical(/)) --> [/].
+verticalExp(t_div_vertical_expression(Number, Expression)) --> negativeNumber(Number),
+    													[/], verticalExp(Expression).
+verticalExp(t_div_vertical_expression(Number, Expression)) --> number(Number),
+    													[/], verticalExp(Expression).
+verticalExp(t_div_vertical_expression(Identifier, Expression)) --> word(Identifier),
+    													[/], verticalExp(Expression).
+verticalExp(t_mul_vertical_expression(Number, Expression)) --> negativeNumber(Number),
+    													[*], verticalExp(Expression).
+verticalExp(t_mul_vertical_expression(Number, Expression)) --> number(Number),
+    													[*], verticalExp(Expression).
+verticalExp(t_mul_vertical_expression(Identifier, Expression)) --> word(Identifier),
+    													[*], verticalExp(Expression).
+verticalExp(t_id(Identifier)) --> word(Identifier).
+verticalExp(t_id(Number)) --> number(Number).
+verticalExp(t_id(NegNumber)) --> negativeNumber(NegNumber).
 
-% Rule for evaluating the expression inside paranthesis.
-paranthesis(t_paranthesis(Expression)) --> ["("] , exp(Expression) , [")"].
-paranthesis(t_paranthesis(GeneralValue)) --> generalValue(GeneralValue).
-
-% Rule for evaluating the expression inside paranthesis.
-generalValue(Word) --> word(Word).
-generalValue(Number) --> number(Number).
-
-% Rule for negative numbers.
+% Rule for negative numbers,negative numbers,words.
 negativeNumber(t_negative_number(Number)) --> [-],number(Number).
-
-% Rule for including word & numbers.
 word(t_word(Word)) --> [Word],{atom(Word)}.
 number(t_number(Number)) --> [Number],{number(Number)}.
-
-% Rule for printing values.
-print(t_print_expression(Expression)) --> [display],exp(Expression),[;].
 
 % Rule for comments inside block.
 comment(t_comment(Statement)) --> [!] , statement(Statement), [!].
@@ -236,28 +262,7 @@ wordLength(t_wordlength(Word)) --> word(Word),[.],[length].
 % Rule for string concatenation operation
 wordConcat(t_word_concat(Word,Word)) --> word(Word),[.],[join],[.],word(Word).
 
+% Rule for printing values.
+print(t_print_expression(Expression)) --> [display],exp(Expression),[;].
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+print(t_print(Words)) --> [display], [@],statement(Words),[@],[;],!.
