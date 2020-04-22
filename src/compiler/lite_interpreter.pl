@@ -23,7 +23,7 @@ eval_program(t_program(Structure),EnvIn, EnvOut) :- eval_structure(Structure,Env
 % 'eval_structure' evaluates the structure block.
 
 eval_structure(t_structure(Declaration,Operation),EnvIn,EnvOut) :- eval_declaration(Declaration,EnvIn,EnvIn1)
-    														,eval_operation(Operation,EnvIn1,EnvOut).
+														,eval_operation(Operation,EnvIn1,EnvOut).
 
 % 'eval_data_type' evaluates the datatype.
 
@@ -37,26 +37,26 @@ eval_declaration(t_declaration(VarType,Identifier),EnvIn,EnvOut) :-eval_var_type
     eval_word(Identifier,_,EnvIn,EnvIn,Iden),update(Iden,0, EnvIn, EnvOut).
 
 eval_declaration(t_declaration(VarType,Identifier,Declaration),EnvIn,EnvOut) :-eval_var_type(VarType,_,EnvIn,EnvIn),
-    				 eval_word(Identifier,_,EnvIn,EnvIn,Iden),update(Iden,0, EnvIn, EnvIn1),
+				 eval_word(Identifier,_,EnvIn,EnvIn,Iden),update(Iden,0, EnvIn, EnvIn1),
 					 eval_declaration(Declaration,EnvIn1,EnvOut).
 
 
 % 'eval_assign' evaluates the assignment block.
 
 eval_assign(t_assign(Identifier,Expression),EnvIn,EnvOut) :- eval_word(Identifier,_,EnvIn,EnvIn,Ident),
-    																eval_expr(Expression,Val,EnvIn,EnvIn),
-    																update(Ident,Val,EnvIn,EnvOut),!.
+																eval_expr(Expression,Val,EnvIn,EnvIn),
+																update(Ident,Val,EnvIn,EnvOut),!.
 
 eval_assign(t_assign(Identifier,Expression),EnvIn,EnvOut) :- eval_word(Identifier,_,EnvIn,EnvIn,Ident),
-    																eval_bool(Expression,Val,EnvIn,EnvIn),
-    																update(Ident,Val,EnvIn,EnvOut),!.
+																eval_bool(Expression,Val,EnvIn,EnvIn),
+																update(Ident,Val,EnvIn,EnvOut),!.
 
  eval_assign(t_assign_wordlength(Identifier,Word),EnvIn,EnvOut) :- eval_word_length(Word,Val,EnvIn,EnvIn),
-    																update(Identifier,Val,EnvIn,EnvOut).
+																update(Identifier,Val,EnvIn,EnvOut).
 
 eval_assign(t_assign(Identifier,TernaryExpression),EnvIn,EnvOut) :- eval_word(Identifier,_,EnvIn,EnvIn,Ident),
-    																eval_ternary(TernaryExpression,Val,EnvIn),
-    																update(Ident,Val,EnvIn,EnvOut),!.
+																eval_ternary(TernaryExpression,Val,EnvIn),
+																update(Ident,Val,EnvIn,EnvOut),!.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % TODO : eval assign for wordconcat,ternary.
@@ -189,3 +189,75 @@ eval_bool(t_less_than_equal_expression(Expr1,Expr2),EnvOut,EnvIn,EnvIn):- eval_e
 eval_bool(t_greater_than_equal_expression(Expr1,Expr2),EnvOut,EnvIn,EnvIn):- eval_expr(Expr1,Val1,EnvIn,EnvIn),
                                                           eval_expr(Expr2,Val2,EnvIn,EnvIn),
                                                           Val1 >= Val2, EnvOut = true; EnvOut = false,!.
+
+% 'eval_expr' evaluates the expression block.
+
+eval_expr(t_add_horizontal_expression(Expr1,Expr2),EnvOut,EnvIn,EnvIn) :- eval_vertical_expr(Expr1,Val1,EnvIn,EnvIn),
+       eval_expr(Expr2,Val2,EnvIn,EnvIn),
+                                                                        EnvOut is Val1+Val2,!.
+
+eval_expr(t_sub_horizontal_expression(Expr1,Expr2),EnvOut,EnvIn,EnvIn) :- eval_vertical_expr(Expr1,Val1,EnvIn,EnvIn),
+       eval_expr(Expr2,Val2,EnvIn,EnvIn),
+                                                                        EnvOut is Val1-Val2,!.
+
+eval_expr(t_expr(Expr1),EnvOut,EnvIn,EnvIn) :- eval_vertical_expr(Expr1,EnvOut,EnvIn,EnvIn).
+
+
+eval_vertical_expr(t_mul_vertical_expression(Expr1,Expr2),EnvOut,EnvIn,EnvIn) :-
+       eval_word(Expr1,Val1,EnvIn,EnvIn,_),eval_vertical_expr(Expr2,Val2,EnvIn,EnvIn),
+    EnvOut is Val1*Val2,!.
+
+eval_vertical_expr(t_mul_vertical_expression(Expr1,Expr2),EnvOut,EnvIn,EnvIn) :-
+       eval_neg_number(Expr1,Val1,EnvIn,EnvIn),eval_vertical_expr(Expr2,Val2,EnvIn,EnvIn),
+    EnvOut is Val1*Val2,!.
+
+eval_vertical_expr(t_mul_vertical_expression(Expr1,Expr2),EnvOut,EnvIn,EnvIn) :-
+       eval_number(Expr1,Val1,EnvIn,EnvIn),eval_vertical_expr(Expr2,Val2,EnvIn,EnvIn),
+    EnvOut is Val1*Val2,!.
+
+eval_vertical_expr(t_div_vertical_expression(Expr1,Expr2),EnvOut,EnvIn,EnvIn) :-
+       eval_word(Expr1,Val1,EnvIn,EnvIn,_),eval_vertical_expr(Expr2,Val2,EnvIn,EnvIn),
+    EnvOut is Val1/Val2,!.
+
+eval_vertical_expr(t_div_vertical_expression(Expr1,Expr2),EnvOut,EnvIn,EnvIn) :-
+       eval_neg_number(Expr1,Val1,EnvIn,EnvIn),eval_vertical_expr(Expr2,Val2,EnvIn,EnvIn),
+    EnvOut is Val1/Val2,!.
+
+eval_vertical_expr(t_div_vertical_expression(Expr1,Expr2),EnvOut,EnvIn,EnvIn) :-
+       eval_number(Expr1,Val1,EnvIn,EnvIn),eval_vertical_expr(Expr2,Val2,EnvIn,EnvIn),
+    EnvOut is Val1/Val2,!.
+
+eval_vertical_expr(t_id(Identifier),EnvOut,EnvIn,EnvIn):-eval_word(Identifier,EnvOut,EnvIn,EnvIn,_).
+
+eval_vertical_expr(t_id(Number),EnvOut,EnvIn,EnvIn):-eval_number(Number,EnvOut,EnvIn,EnvIn),!.
+
+eval_vertical_expr(t_id(NegativeNumber),EnvOut,EnvIn,EnvIn):-eval_neg_number(NegativeNumber,EnvOut,EnvIn,EnvIn),!.
+
+eval_neg_number(t_negative_number(Number),EnvOut,EnvIn,EnvIn):-eval_number(Number,EnvOut1,EnvIn,EnvIn),EnvOut is 0-EnvOut1,!.
+
+eval_number(t_number(Number),EnvOut,EnvIn,EnvIn):-EnvOut is Number,!.
+
+eval_word(t_word(Identifier),Output,EnvIn,EnvIn,Ident):-lookup(Identifier, EnvIn, Output),!,Ident = Identifier.
+
+% 'eval_print' for printing expressions.
+
+eval_print(t_print_expression(Expr),EnvIn,EnvOut) :-  eval_expr(Expr,Val,EnvIn,EnvOut),write(Val).
+
+eval_print(t_print(Word), EnvIn, EnvIn) :- write(Word), write(" "),!.
+
+eval_word_length(t_wordlength(Word),EnvOut,EnvIn,EnvIn) :- eval_word(Word,EnvOut,EnvIn,EnvIn,_), atom_length(Word,EnvOut).
+
+eval_word_concat(t_word_concat(Word1,Word2),EnvIn,EnvOut) :- eval_word(Word1,EnvOut,EnvIn,EnvIn,_) ,
+    eval_word(Word2,EnvOut,EnvIn,EnvIn,_),atom_concat(Word1,Word2,EnvOut).
+
+
+
+
+
+
+
+
+
+
+
+
