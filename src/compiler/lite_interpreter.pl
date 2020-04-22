@@ -113,3 +113,79 @@ eval_routine(t_dec_operator(Identifier),EnvIn,EnvOut) :- eval_expr(Identifier,Va
 % TODO : eval routine for loop(traditional and range)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% 'eval_ternary' for evaluating ternary block.
+
+eval_ternary(t_ternary(Boolean,_,FalseRoutine),EnvIn,EnvOut):-eval_bool(Boolean,Val,EnvIn,EnvIn),
+                                                              Val = false,
+                                                              eval_expr(FalseRoutine,EnvOut,EnvIn,EnvIn).
+
+eval_ternary(t_ternary(Boolean,TrueRoutine,_),EnvIn,EnvOut):- eval_condition(Boolean,Val,EnvIn,EnvIn),
+                                                              Val = true,
+                                                              eval_expr(TrueRoutine,EnvOut,EnvIn,EnvIn).
+
+% 'eval_condition' evaluates the condition block.
+
+and(false,_,false).
+and(_,false,false).
+and(true,true,true).
+
+or(true,_,true).
+or(_,true,true).
+or(false,false,false).
+
+not(true,false).
+not(false,true).
+
+eval_condition(t_and_condition(BoolExp1,BoolExp2),EnvOut,EnvIn,EnvIn):- eval_bool(BoolExp1,Val1,EnvIn,EnvIn),
+                                                                        eval_bool(BoolExp2,Val2,EnvIn,EnvIn),
+                                                                        and(Val1,Val2,EnvOut),!.
+
+eval_condition(t_or_condition(BoolExp1,BoolExp2),EnvOut,EnvIn,EnvIn):-eval_bool(BoolExp1,Val1,EnvIn,EnvIn),
+    eval_bool(BoolExp2,Val2,EnvIn,EnvIn),
+                                                                     or(Val1,Val2,EnvOut),!.
+
+eval_condition(t_not_condition(BoolExp),EnvOut,EnvIn,EnvIn):-
+    eval_bool(BoolExp,BoolOutput,EnvIn,EnvIn),
+                                         not(BoolOutput,EnvOut),!.
+
+eval_condition(t_condition(BoolExp),EnvOut,EnvIn,EnvIn):-
+    eval_bool(BoolExp,EnvOut,EnvIn,EnvIn),!.
+
+
+% 'eval_bool' evaluates the bool block.
+
+eval_bool(t_bool_exp(false),false,EnvIn,EnvIn).
+eval_bool(t_bool_exp(true),true,EnvIn,EnvIn).
+
+eval_bool(t_equal_expression(Expr1,Expr2),EnvOut,EnvIn,EnvIn):- eval_expr(Expr1,Val1,EnvIn,EnvIn),
+                                                          eval_expr(Expr2,Val2,EnvIn,EnvIn),
+                                                          Val1 =:= Val2, EnvOut = true; EnvOut = false,!.
+
+eval_bool(t_not_equal_expression(Expr1,Expr2),EnvOut,EnvIn,EnvIn):- eval_expr(Expr1,Val1,EnvIn,EnvIn),
+                                                          eval_expr(Expr2,Val2,EnvIn,EnvIn),
+                                                          Val1 =\= Val2, EnvOut = true; EnvOut = false,!.
+
+eval_bool(t_bool_equal_expression(Expr1,Expr2),EnvOut,EnvIn,EnvIn):- eval_expr(Expr1,Val1,EnvIn,EnvIn),
+                                                         eval_bool(Expr2,Val2,EnvIn,EnvIn),
+                                                         Val1 =:= Val2, EnvOut = true; EnvOut = false,!.
+
+eval_bool(t_bool_not_equal_expression(Expr1,Expr2),EnvOut,EnvIn,EnvIn):- eval_expr(Expr1,Val1,EnvIn,EnvIn),
+                                                         eval_bool(Expr2,Val2,EnvIn,EnvIn),
+                                                         Val1 =\= Val2, EnvOut = true; EnvOut = false,!.
+
+eval_bool(t_less_than_expression(Expr1,Expr2),EnvOut,EnvIn,EnvIn):- eval_expr(Expr1,Val1,EnvIn,EnvIn),
+                                                          eval_expr(Expr2,Val2,EnvIn,EnvIn),
+                                                          Val1 < Val2, EnvOut = true; EnvOut = false,!.
+
+eval_bool(t_greater_than_expression(Expr1,Expr2),EnvOut,EnvIn,EnvIn):- eval_expr(Expr1,Val1,EnvIn,EnvIn),
+                                                          eval_expr(Expr2,Val2,EnvIn,EnvIn),
+                                                          Val1 > Val2, EnvOut = true; EnvOut = false,!.
+
+eval_bool(t_less_than_equal_expression(Expr1,Expr2),EnvOut,EnvIn,EnvIn):- eval_expr(Expr1,Val1,EnvIn,EnvIn),
+                                                          eval_expr(Expr2,Val2,EnvIn,EnvIn),
+                                                          Val1 =< Val2, EnvOut = true; EnvOut = false,!.
+
+eval_bool(t_greater_than_equal_expression(Expr1,Expr2),EnvOut,EnvIn,EnvIn):- eval_expr(Expr1,Val1,EnvIn,EnvIn),
+                                                          eval_expr(Expr2,Val2,EnvIn,EnvIn),
+                                                          Val1 >= Val2, EnvOut = true; EnvOut = false,!.
