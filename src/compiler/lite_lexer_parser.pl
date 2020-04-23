@@ -32,7 +32,7 @@
 
 litepiler(FileName) :- open(FileName, read, InStream),
               tokenCodes(InStream, TokenCodes),
-               phrase(lexer(Tokens), TokenCodes),
+              phrase(lexer(Tokens), TokenCodes),
               parse(ParseTree, Tokens, []),
               close(InStream),
               split_string(FileName, ".", "", L),
@@ -43,7 +43,6 @@ litepiler(FileName) :- open(FileName, read, InStream),
               write(OutStream, '.'),
               close(OutStream),
               eval_parse(ParseTree, EnvOut).
-
 
 %-----------------------------%%%%%%%%%%%%%%%%%%%-------------------------------
 
@@ -56,13 +55,13 @@ tokenCodes(InStream, [TokenCode|RemTokens]) :- get_code(InStream, TokenCode), to
 
 lexer(Tokens) -->
     white_space,
-    (( ";",  !, { Token = ; };
-        "!",  !, { Token = ! };
+    (   ( ";",  !, { Token = ; };
+        "@",  !, { Token = @ };
         "enter",  !, { Token = enter };
         "exit",  !, { Token = exit };
         "when",  !, { Token = when };
-        "in",  !, { Token = in };
         "range",  !, { Token = range };
+        "between",  !, { Token = between };
         "repeat",  !, { Token = repeat };
         "endrepeat",  !, { Token = endrepeat };
         "if",  !, { Token = if };
@@ -78,7 +77,9 @@ lexer(Tokens) -->
         "or",  !, { Token = or };
         "not",  !, { Token = not };
         "~",  !, { Token = ~ };
-        "int",  !, { Token = var };
+        "display", !, {Token = display};
+        "input", !, {Token = input};
+        "int",  !, { Token = int };
         "bool",  !, { Token = bool };
         "String",  !, { Token = string};
         ">",  !, { Token = > };
@@ -98,8 +99,6 @@ lexer(Tokens) -->
         ".", !, {Token = .};
         "length", !, {Token = length};
         "join", !, {Token = join};
-        "display", !, {Token = display};
-     	"input", !, {Token = input};
         digit(D),  !, number(D, N), { Token = N };
         lowletter(L), !, identifier(L, Id),{  Token = Id};
         upletter(L), !, identifier(L, Id), { Token = Id };
@@ -129,8 +128,6 @@ identifier(L, Id) --> alphanum(As),{ atom_codes(Id, [L|As]) }.
 
 %-----------------------------%%%%%%%%%%%%%%%%%%%-------------------------------
 % Parser for language
-
-:- use_rendering(svgtree).
 
 :- table exp/3,verticalExp/3.
 
@@ -186,7 +183,7 @@ routine(t_if_routine(Condition,TrueOperation,FalseOperation)) --> [if], conditio
                                           operation(TrueOperation), [else], operation(FalseOperation), [endif].
 routine(t_while_routine(Condition,Operation)) -->[while],condition(Condition),[do],operation(Operation),[endwhile].
 routine(t_for_routine(Condition,Operation)) --> [when], condition(Condition), [repeat], operation(Operation), [endrepeat].
-routine(t_for_range_routine(GeneralValue,FromNumber,ToNumber,Operation)) --> [when], word(GeneralValue), [in], [range],["("],number(FromNumber),number(ToNumber),[")"],
+routine(t_for_range_routine(GeneralValue,FromNumber,ToNumber,Operation)) --> [when], word(GeneralValue), [between], [range],["("],number(FromNumber),number(ToNumber),[")"],
     [repeat],operation(Operation),[endrepeat].
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

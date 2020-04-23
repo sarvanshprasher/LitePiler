@@ -1,0 +1,1 @@
+t_program(t_structure(t_declaration(t_vartype(int),t_word(z),t_declaration(t_vartype(int),t_word(i))),t_operation(t_read_input(t_word(i)),t_operation(t_assign(t_word(z),t_expr(t_id(t_word(i)))),t_operation(t_print_expression(t_expr(t_id(t_word(z))))))))).

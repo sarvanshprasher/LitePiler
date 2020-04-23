@@ -1,38 +1,8 @@
-% @author Sarvansh Prasher
-% @version 1.0
-
-% @edited by Rohit Kumar Singh
-% @version 2.0
-
-% @edited by Surya Chatterjee
-% @version 3.0
-
-% @edited by Abhishek
-% @version 4.0
-
-% Name of Language : LitePiler
-
-% This file contains the lexer and parser part of programming language.
-% Role of lexer is to segregate the code in form of tokens
-% which will help parser to understand the code better.
-
-% Role of lexer is to find out if there is any unknown symbol which is being
-% used or to detect typos if there are any.
-
-% References for Lexer : Own interpreted programming language with prolog. Part 1 - Lexer
-% (https://steemit.com/science/@whd/own-interpreted-programming-language-with-prolog-part-1-lexer)
-
-%% Sample parser run query :
-%% trace, (L = [enter,string,sar,;,const, x, ;,int, y, ;, int, z,;,x,=,1,;
-%% ,!,t,s,roh,!,z,=,sar,.,length,;,if, x, :=:, y, +, 2, then, z , = , 5, ;,else, z, =, 3, ;,endif,
-%% while, not, x, :=:, z, do, z, =, z, +, 2,;, endwhile,when,i,in,range,"(",1,4,")",repeat,x,=,2,;
-%% ,endrepeat,display,x,;,exit],program(P, L, [])).
-
 :- style_check(-singleton).
 
 litepiler(FileName) :- open(FileName, read, InStream),
               tokenCodes(InStream, TokenCodes),
-               phrase(lexer(Tokens), TokenCodes),
+              phrase(lexer(Tokens), TokenCodes),
               parse(ParseTree, Tokens, []),
               close(InStream),
               split_string(FileName, ".", "", L),
@@ -43,7 +13,6 @@ litepiler(FileName) :- open(FileName, read, InStream),
               write(OutStream, '.'),
               close(OutStream),
               eval_parse(ParseTree, EnvOut).
-
 
 %-----------------------------%%%%%%%%%%%%%%%%%%%-------------------------------
 
@@ -56,13 +25,13 @@ tokenCodes(InStream, [TokenCode|RemTokens]) :- get_code(InStream, TokenCode), to
 
 lexer(Tokens) -->
     white_space,
-    (( ";",  !, { Token = ; };
-        "!",  !, { Token = ! };
+    (   ( ";",  !, { Token = ; };
+        "@",  !, { Token = @ };
         "enter",  !, { Token = enter };
         "exit",  !, { Token = exit };
         "when",  !, { Token = when };
-        "in",  !, { Token = in };
         "range",  !, { Token = range };
+        "between",  !, { Token = between };
         "repeat",  !, { Token = repeat };
         "endrepeat",  !, { Token = endrepeat };
         "if",  !, { Token = if };
@@ -78,7 +47,9 @@ lexer(Tokens) -->
         "or",  !, { Token = or };
         "not",  !, { Token = not };
         "~",  !, { Token = ~ };
-        "int",  !, { Token = var };
+        "display", !, {Token = display};
+        "input", !, {Token = input};
+        "int",  !, { Token = int };
         "bool",  !, { Token = bool };
         "String",  !, { Token = string};
         ">",  !, { Token = > };
@@ -98,8 +69,6 @@ lexer(Tokens) -->
         ".", !, {Token = .};
         "length", !, {Token = length};
         "join", !, {Token = join};
-        "display", !, {Token = display};
-     	"input", !, {Token = input};
         digit(D),  !, number(D, N), { Token = N };
         lowletter(L), !, identifier(L, Id),{  Token = Id};
         upletter(L), !, identifier(L, Id), { Token = Id };
@@ -129,8 +98,6 @@ identifier(L, Id) --> alphanum(As),{ atom_codes(Id, [L|As]) }.
 
 %-----------------------------%%%%%%%%%%%%%%%%%%%-------------------------------
 % Parser for language
-
-:- use_rendering(svgtree).
 
 :- table exp/3,verticalExp/3.
 
@@ -186,7 +153,7 @@ routine(t_if_routine(Condition,TrueOperation,FalseOperation)) --> [if], conditio
                                           operation(TrueOperation), [else], operation(FalseOperation), [endif].
 routine(t_while_routine(Condition,Operation)) -->[while],condition(Condition),[do],operation(Operation),[endwhile].
 routine(t_for_routine(Condition,Operation)) --> [when], condition(Condition), [repeat], operation(Operation), [endrepeat].
-routine(t_for_range_routine(GeneralValue,FromNumber,ToNumber,Operation)) --> [when], word(GeneralValue), [in], [range],["("],number(FromNumber),number(ToNumber),[")"],
+routine(t_for_range_routine(GeneralValue,FromNumber,ToNumber,Operation)) --> [when], word(GeneralValue), [between], [range],["("],number(FromNumber),number(ToNumber),[")"],
     [repeat],operation(Operation),[endrepeat].
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -334,12 +301,12 @@ eval_assign(t_assign(Identifier,TernaryExpression),EnvIn,EnvOut) :- eval_word(Id
 % TODO : eval assign for wordconcat,ternary.
 
 eval_ternary(t_ternary(Boolean,_,FalseRoutine),EnvIn,EnvOut):-eval_bool(Boolean,Val,EnvIn,EnvIn),
-                                                              Val = false,
-                                                              eval_expr(FalseRoutine,EnvOut,EnvIn,EnvIn).
+                                                              Val = false,!,
+                                                              eval_expr(FalseRoutine,EnvIn,EnvOut).
 
-eval_ternary(t_ternary(Boolean,TrueRoutine,_),EnvIn,EnvOut):- eval_condition(Boolean,Val,EnvIn,EnvIn),
+eval_ternary-(t_ternary(Boolean,TrueRoutine,_),EnvIn,EnvOut):- eval_bool(Boolean,Val,EnvIn,EnvIn),
                                                               Val = true,
-                                                              eval_expr(TrueRoutine,EnvOut,EnvIn,EnvIn).
+                                                              eval_expr(TrueRoutine,EnvIn,EnvOut).
 
 eval_read(t_read_input(Identifier), EnvIn, EnvOut):- read(Id), eval_word(Identifier,_,EnvIn,EnvIn1,Ident),
                                         update(Ident, Id, EnvIn1, EnvOut).
