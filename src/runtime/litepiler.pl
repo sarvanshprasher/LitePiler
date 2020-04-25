@@ -27,6 +27,7 @@ lexer(Tokens) -->
     white_space,
     (   ( ";",  !, { Token = ; };
         "@",  !, { Token = @ };
+        "!",  !, { Token = ! };
         "enter",  !, { Token = enter };
         "exit",  !, { Token = exit };
         "when",  !, { Token = when };
@@ -74,7 +75,7 @@ lexer(Tokens) -->
         upletter(L), !, identifier(L, Id), { Token = Id };
         [Un], { Token = tkUnknown, throw((unrecognized_token, Un)) }),!,
         { Tokens = [Token | TokList] },lexer(TokList);
-	  [],{ Tokens = [] }).
+ [],{ Tokens = [] }).
 
 white_space --> [Char], { code_type(Char,space) }, !, white_space.
 white_space --> [].
@@ -99,6 +100,8 @@ identifier(L, Id) --> alphanum(As),{ atom_codes(Id, [L|As]) }.
 %-----------------------------%%%%%%%%%%%%%%%%%%%-------------------------------
 % Parser for language
 
+:- use_rendering(svgtree).
+
 :- table exp/3,verticalExp/3.
 
 parse(Program) --> program(Program).
@@ -108,7 +111,7 @@ program(t_program(Structure)) --> structure(Structure).
 
 % Rule for structure inside the program
 structure(t_structure(Declaration,Operation)) -->[enter],declaration(Declaration),
-    										operation(Operation),[exit].
+    operation(Operation),[exit].
 
 % Rule for variable types in language.
 varType(t_vartype(int)) --> [int].
@@ -117,21 +120,15 @@ varType(t_vartype(string)) --> [string].
 
 % Rule for declarations inside the structure
 declaration(t_declaration(VarType,GeneralValue)) --> varType(VarType),
-   				word(GeneralValue),[;].
+    word(GeneralValue),[;].
 declaration(t_declaration(VarType,GeneralValue,Declaration)) --> varType(VarType),
-  				word(GeneralValue),[;],declaration(Declaration).
+  word(GeneralValue),[;],declaration(Declaration).
 
 % Rule for assigning values to variable.
 assignValue(t_assign(GeneralValue,Expression)) --> word(GeneralValue),
-    													[=] ,exp(Expression), [;].
+    [=] ,exp(Expression), [;].
 assignValue(t_assign(GeneralValue,BoolExpression)) --> word(GeneralValue),
                                                                  [is], boolExp(BoolExpression), [;].
-assignValue(t_assign_wordlength(GeneralValue,WordLength)) --> word(GeneralValue),
-                                                                 [=] ,wordLength(WordLength), [;].
-assignValue(t_assign_wordconcat(GeneralValue,WordConcat)) --> word(GeneralValue)
-                                                                 , [=] ,wordConcat(WordConcat), [;].
-assignValue(t_assign(GeneralValue,TernaryExpression))  --> word(GeneralValue),
-                                                                  [=], ternary(TernaryExpression), [;].
 
 % Rule for reading the input from system.
 readValue(t_read_input(Identifier)) --> [input], word(Identifier), [;].
@@ -153,7 +150,8 @@ routine(t_if_routine(Condition,TrueOperation,FalseOperation)) --> [if], conditio
                                           operation(TrueOperation), [else], operation(FalseOperation), [endif].
 routine(t_while_routine(Condition,Operation)) -->[while],condition(Condition),[do],operation(Operation),[endwhile].
 routine(t_for_routine(Condition,Operation)) --> [when], condition(Condition), [repeat], operation(Operation), [endrepeat].
-routine(t_for_range_routine(GeneralValue,FromNumber,ToNumber,Operation)) --> [when], word(GeneralValue), [between], [range],["("],number(FromNumber),number(ToNumber),[")"],
+routine(t_for_range_routine(GeneralValue,FromNumber,ToNumber,Operation)) --> [when], word(GeneralValue), [between], [range],
+    ["("],number(FromNumber),number(ToNumber),[")"],
     [repeat],operation(Operation),[endrepeat].
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -186,33 +184,27 @@ boolExp(t_greater_than_expression(Expression1,Expression2)) --> exp(Expression1)
 boolExp(t_less_than_equal_expression(Expression1,Expression2)) --> exp(Expression1), [<],[=], exp(Expression2).
 boolExp(t_greater_than_equal_expression(Expression1,Expression2)) -->  exp(Expression1), [>],[=], exp(Expression2).
 
-% Rule for evaluating the horizontal expression(includes addition & difference).
-exp(t_add_horizontal_expression(Expression,VerticalExpression)) --> verticalExp(VerticalExpression),[+],exp(Expression).
-exp(t_sub_horizontal_expression(Expression,VerticalExpression)) --> verticalExp(VerticalExpression),[-],exp(Expression).
+exp(t_add_horizontal_expression(Expression, VerticalExpression)) --> verticalExp(Expression), [+], exp(VerticalExpression).
+exp(t_sub_horizontal_expression(Expression, VerticalExpression)) --> verticalExp(Expression), [-], exp(VerticalExpression).
 exp(t_expr(Expression)) --> verticalExp(Expression).
 
-% Rule for evaluating the vertical expression(includes multiplication & division).
-
-verticalExp(t_div_vertical_expression(Number, Expression)) --> negativeNumber(Number),
-    													[/], verticalExp(Expression).
-verticalExp(t_div_vertical_expression(Number, Expression)) --> number(Number),
-    													[/], verticalExp(Expression).
-verticalExp(t_div_vertical_expression(Identifier, Expression)) --> word(Identifier),
-    													[/], verticalExp(Expression).
-verticalExp(t_mul_vertical_expression(Number, Expression)) --> negativeNumber(Number),
-    													[*], verticalExp(Expression).
-verticalExp(t_mul_vertical_expression(Number, Expression)) --> number(Number),
-    													[*], verticalExp(Expression).
-verticalExp(t_mul_vertical_expression(Identifier, Expression)) --> word(Identifier),
-    													[*], verticalExp(Expression).
-verticalExp(t_id(Identifier)) --> word(Identifier).
+verticalExp(t_div_vertical_expression(Number, Expression)) --> negativeNumber(Number),[/], verticalExp(Expression).
+verticalExp(t_div_vertical_expression(Number, Expression)) --> number(Number),[/], verticalExp(Expression).
+verticalExp(t_div_vertical_expression(Identifier, Expression)) --> word(Identifier),[/], verticalExp(Expression).
+verticalExp(t_mul_vertical_expression(Number, Expression)) --> negativeNumber(Number),[*], verticalExp(Expression).
+verticalExp(t_mul_vertical_expression(Number, Expression)) --> number(Number),[*], verticalExp(Expression).
+verticalExp(t_mul_vertical_expression(Identifier, Expression)) --> word(Identifier), [*], verticalExp(Expression).
 verticalExp(t_id(Number)) --> number(Number).
 verticalExp(t_id(NegNumber)) --> negativeNumber(NegNumber).
+verticalExp(t_id(Identifier)) --> word(Identifier).
 
-% Rule for negative numbers,negative numbers,words.
-negativeNumber(t_negative_number(Number)) --> [-],number(Number).
+
+%Rule for Identifier
 word(t_word(Word)) --> [Word],{atom(Word)}.
-number(t_number(Number)) --> [Number],{number(Number)}.
+
+%Rules for numbers
+negativeNumber(t_negative_number(NumberNode)) --> [-],number(NumberNode).
+number(t_number(NumberNode)) --> [NumberNode],{number(NumberNode)}.
 
 % Rule for comments inside block.
 comment(t_comment(Statement)) --> [!] , statement(Statement), [!].
@@ -262,7 +254,7 @@ eval_program(t_program(Structure),EnvIn, EnvOut) :- eval_structure(Structure,Env
 % 'eval_structure' evaluates the structure block.
 
 eval_structure(t_structure(Declaration,Operation),EnvIn,EnvOut) :- eval_declaration(Declaration,EnvIn,EnvIn1)
-    														,eval_operation(Operation,EnvIn1,EnvOut).
+    ,eval_operation(Operation,EnvIn1,EnvOut).
 
 % 'eval_data_type' evaluates the datatype.
 
@@ -276,37 +268,37 @@ eval_declaration(t_declaration(VarType,Identifier),EnvIn,EnvOut) :-eval_var_type
     eval_word(Identifier,_,EnvIn,EnvIn,Iden),update(Iden,0, EnvIn, EnvOut).
 
 eval_declaration(t_declaration(VarType,Identifier,Declaration),EnvIn,EnvOut) :-eval_var_type(VarType,_,EnvIn,EnvIn),
-    				 eval_word(Identifier,_,EnvIn,EnvIn,Iden),update(Iden,0, EnvIn, EnvIn1),
-					 eval_declaration(Declaration,EnvIn1,EnvOut).
+    eval_word(Identifier,_,EnvIn,EnvIn,Iden),update(Iden,0, EnvIn, EnvIn1),
+eval_declaration(Declaration,EnvIn1,EnvOut).
 
 
 % 'eval_routine' evaluates the declaration block.
 
 eval_assign(t_assign(Identifier,Expression),EnvIn,EnvOut) :- eval_word(Identifier,_,EnvIn,EnvIn,Ident),
-    																eval_expr(Expression,Val,EnvIn,EnvIn),
-    																update(Ident,Val,EnvIn,EnvOut),!.
+    eval_expr(Expression,Val,EnvIn,EnvIn),
+    update(Ident,Val,EnvIn,EnvOut),!.
 
-eval_assign(t_assign(Identifier,Expression),EnvIn,EnvOut) :- eval_word(Identifier,_,EnvIn,EnvIn,Ident),
-    																eval_bool(Expression,Val,EnvIn,EnvIn),
-    																update(Ident,Val,EnvIn,EnvOut),!.
+% eval_assign(t_assign(Identifier,Expression),EnvIn,EnvOut) :- eval_word(Identifier,_,EnvIn,EnvIn,Ident),
+%     eval_bool(Expression,Val,EnvIn,EnvIn),
+%   update(Ident,Val,EnvIn,EnvOut),!.
 
  eval_assign(t_assign_wordlength(Identifier,Word),EnvIn,EnvOut) :- eval_word_length(Word,Val,EnvIn,EnvIn),
-    																update(Identifier,Val,EnvIn,EnvOut).
+    update(Identifier,Val,EnvIn,EnvOut).
 
-eval_assign(t_assign(Identifier,TernaryExpression),EnvIn,EnvOut) :- eval_word(Identifier,_,EnvIn,EnvIn,Ident),
-    																eval_ternary(TernaryExpression,Val,EnvIn),
-    																update(Ident,Val,EnvIn,EnvOut),!.
+% eval_assign(t_assign(Identifier,TernaryExpression),EnvIn,EnvOut) :- eval_word(Identifier,_,EnvIn,EnvIn,Ident),
+%     eval_ternary(TernaryExpression,Val,EnvIn),
+%     update(Ident,Val,EnvIn,EnvOut),!.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % TODO : eval assign for wordconcat,ternary.
 
 eval_ternary(t_ternary(Boolean,_,FalseRoutine),EnvIn,EnvOut):-eval_bool(Boolean,Val,EnvIn,EnvIn),
                                                               Val = false,!,
-                                                              eval_expr(FalseRoutine,EnvIn,EnvOut).
+                                                              eval_expr(FalseRoutine,EnvIn,EnvIn,EnvOut).
 
-eval_ternary-(t_ternary(Boolean,TrueRoutine,_),EnvIn,EnvOut):- eval_bool(Boolean,Val,EnvIn,EnvIn),
+eval_ternary(t_ternary(Boolean,TrueRoutine,_),EnvIn,EnvOut):- eval_bool(Boolean,Val,EnvIn,EnvIn),
                                                               Val = true,
-                                                              eval_expr(TrueRoutine,EnvIn,EnvOut).
+                                                              eval_expr(TrueRoutine,EnvIn,EnvIn,EnvOut).
 
 eval_read(t_read_input(Identifier), EnvIn, EnvOut):- read(Id), eval_word(Identifier,_,EnvIn,EnvIn1,Ident),
                                         update(Ident, Id, EnvIn1, EnvOut).
@@ -350,10 +342,10 @@ eval_routine(t_while_routine(Boolean,Routine),EnvIn,EnvOut) :- eval_condition(Bo
                                                               eval_routine(t_while_routine(Boolean,Routine),EnvIn1,EnvOut).
 
 eval_routine(t_inc_operator(Identifier),EnvIn,EnvOut) :- eval_expr(Identifier,Val,EnvIn,EnvIn), Val1 is Val + 1,
-    													update(Identifier,Val1,EnvIn,EnvOut).
+    update(Identifier,Val1,EnvIn,EnvOut).
 
 eval_routine(t_dec_operator(Identifier),EnvIn,EnvOut) :- eval_expr(Identifier,Val,EnvIn,EnvIn), Val1 is Val - 1,
-    													update(Identifier,Val1,EnvIn,EnvOut).
+    update(Identifier,Val1,EnvIn,EnvOut).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % TODO : eval routine for loop(traditional and range)
@@ -378,15 +370,13 @@ eval_condition(t_and_condition(BoolExp1,BoolExp2),EnvOut,EnvIn,EnvIn):- eval_boo
                                                                         and(Val1,Val2,EnvOut),!.
 
 eval_condition(t_or_condition(BoolExp1,BoolExp2),EnvOut,EnvIn,EnvIn):-eval_bool(BoolExp1,Val1,EnvIn,EnvIn),
-    																 eval_bool(BoolExp2,Val2,EnvIn,EnvIn),
+    eval_bool(BoolExp2,Val2,EnvIn,EnvIn),
                                                                      or(Val1,Val2,EnvOut),!.
 
-eval_condition(t_not_condition(BoolExp),EnvOut,EnvIn,EnvIn):-
-    		eval_bool(BoolExp,BoolOutput,EnvIn,EnvIn),
+eval_condition(t_not_condition(BoolExp),EnvOut,EnvIn,EnvIn):-eval_bool(BoolExp,BoolOutput,EnvIn,EnvIn),
                                          not(BoolOutput,EnvOut),!.
 
-eval_condition(t_condition(BoolExp),EnvOut,EnvIn,EnvIn):-
-    		eval_bool(BoolExp,EnvOut,EnvIn,EnvIn),!.
+eval_condition(t_condition(BoolExp),EnvOut,EnvIn,EnvIn):-eval_bool(BoolExp,EnvOut,EnvIn,EnvIn),!.
 
 
 % 'eval_bool' evaluates the bool block.
@@ -429,12 +419,13 @@ eval_bool(t_greater_than_equal_expression(Expr1,Expr2),EnvOut,EnvIn,EnvIn):- eva
 
 % 'eval_expr' evaluates the expression block.
 
-eval_expr(t_add_horizontal_expression(Expr1,Expr2),EnvOut,EnvIn,EnvIn) :- eval_vertical_expr(Expr1,Val1,EnvIn,EnvIn),
-   																	    eval_expr(Expr2,Val2,EnvIn,EnvIn),
-                                                                        EnvOut is Val1+Val2,!.
+
+eval_expr(t_add_horizontal_expression(TermNode,ExpressionNode),EnvOut,EnvIn,EnvIn):- eval_vertical_expr(TermNode,Output1,EnvIn,EnvIn),
+                                                                    eval_expr(ExpressionNode,Output2,EnvIn,EnvIn),
+                                                                    EnvOut is Output1 + Output2,!.
 
 eval_expr(t_sub_horizontal_expression(Expr1,Expr2),EnvOut,EnvIn,EnvIn) :- eval_vertical_expr(Expr1,Val1,EnvIn,EnvIn),
-   																	    eval_expr(Expr2,Val2,EnvIn,EnvIn),
+       eval_expr(Expr2,Val2,EnvIn,EnvIn),
                                                                         EnvOut is Val1-Val2,!.
 
 eval_expr(t_expr(Expr1),EnvOut,EnvIn,EnvIn) :- eval_vertical_expr(Expr1,EnvOut,EnvIn,EnvIn).
@@ -442,27 +433,27 @@ eval_expr(t_expr(Expr1),EnvOut,EnvIn,EnvIn) :- eval_vertical_expr(Expr1,EnvOut,E
 
 eval_vertical_expr(t_mul_vertical_expression(Expr1,Expr2),EnvOut,EnvIn,EnvIn) :-
        eval_word(Expr1,Val1,EnvIn,EnvIn,_),eval_vertical_expr(Expr2,Val2,EnvIn,EnvIn),
-    							EnvOut is Val1*Val2,!.
+    EnvOut is Val1*Val2,!.
 
 eval_vertical_expr(t_mul_vertical_expression(Expr1,Expr2),EnvOut,EnvIn,EnvIn) :-
        eval_neg_number(Expr1,Val1,EnvIn,EnvIn),eval_vertical_expr(Expr2,Val2,EnvIn,EnvIn),
-    							EnvOut is Val1*Val2,!.
+    EnvOut is Val1*Val2,!.
 
 eval_vertical_expr(t_mul_vertical_expression(Expr1,Expr2),EnvOut,EnvIn,EnvIn) :-
        eval_number(Expr1,Val1,EnvIn,EnvIn),eval_vertical_expr(Expr2,Val2,EnvIn,EnvIn),
-    							EnvOut is Val1*Val2,!.
+    EnvOut is Val1*Val2,!.
 
 eval_vertical_expr(t_div_vertical_expression(Expr1,Expr2),EnvOut,EnvIn,EnvIn) :-
        eval_word(Expr1,Val1,EnvIn,EnvIn,_),eval_vertical_expr(Expr2,Val2,EnvIn,EnvIn),
-    							EnvOut is Val1/Val2,!.
+    EnvOut is Val1/Val2,!.
 
 eval_vertical_expr(t_div_vertical_expression(Expr1,Expr2),EnvOut,EnvIn,EnvIn) :-
        eval_neg_number(Expr1,Val1,EnvIn,EnvIn),eval_vertical_expr(Expr2,Val2,EnvIn,EnvIn),
-    							EnvOut is Val1/Val2,!.
+    EnvOut is Val1/Val2,!.
 
 eval_vertical_expr(t_div_vertical_expression(Expr1,Expr2),EnvOut,EnvIn,EnvIn) :-
        eval_number(Expr1,Val1,EnvIn,EnvIn),eval_vertical_expr(Expr2,Val2,EnvIn,EnvIn),
-    							EnvOut is Val1/Val2,!.
+    EnvOut is Val1/Val2,!.
 
 eval_vertical_expr(t_id(Identifier),EnvOut,EnvIn,EnvIn):-eval_word(Identifier,EnvOut,EnvIn,EnvIn,_).
 
@@ -485,4 +476,4 @@ eval_print(t_print(Word), EnvIn, EnvIn) :- write(Word), write(" "),!.
 eval_word_length(t_wordlength(Word),EnvOut,EnvIn,EnvIn) :- eval_word(Word,EnvOut,EnvIn,EnvIn,_), atom_length(Word,EnvOut).
 
 eval_word_concat(t_word_concat(Word1,Word2),EnvIn,EnvOut) :- eval_word(Word1,EnvOut,EnvIn,EnvIn,_) ,
-    												eval_word(Word2,EnvOut,EnvIn,EnvIn,_),atom_concat(Word1,Word2,EnvOut).
+    eval_word(Word2,EnvOut,EnvIn,EnvIn,_),atom_concat(Word1,Word2,EnvOut).
