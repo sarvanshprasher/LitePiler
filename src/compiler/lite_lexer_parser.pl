@@ -57,6 +57,7 @@ lexer(Tokens) -->
     white_space,
     (   ( ";",  !, { Token = ; };
         "@",  !, { Token = @ };
+        "!",  !, { Token = ! };
         "enter",  !, { Token = enter };
         "exit",  !, { Token = exit };
         "when",  !, { Token = when };
@@ -104,7 +105,7 @@ lexer(Tokens) -->
         upletter(L), !, identifier(L, Id), { Token = Id };
         [Un], { Token = tkUnknown, throw((unrecognized_token, Un)) }),!,
         { Tokens = [Token | TokList] },lexer(TokList);
-	  [],{ Tokens = [] }).
+ [],{ Tokens = [] }).
 
 white_space --> [Char], { code_type(Char,space) }, !, white_space.
 white_space --> [].
@@ -129,6 +130,8 @@ identifier(L, Id) --> alphanum(As),{ atom_codes(Id, [L|As]) }.
 %-----------------------------%%%%%%%%%%%%%%%%%%%-------------------------------
 % Parser for language
 
+:- use_rendering(svgtree).
+
 :- table exp/3,verticalExp/3.
 
 parse(Program) --> program(Program).
@@ -138,7 +141,7 @@ program(t_program(Structure)) --> structure(Structure).
 
 % Rule for structure inside the program
 structure(t_structure(Declaration,Operation)) -->[enter],declaration(Declaration),
-    										operation(Operation),[exit].
+    operation(Operation),[exit].
 
 % Rule for variable types in language.
 varType(t_vartype(int)) --> [int].
@@ -147,21 +150,17 @@ varType(t_vartype(string)) --> [string].
 
 % Rule for declarations inside the structure
 declaration(t_declaration(VarType,GeneralValue)) --> varType(VarType),
-   				word(GeneralValue),[;].
+    word(GeneralValue),[;].
 declaration(t_declaration(VarType,GeneralValue,Declaration)) --> varType(VarType),
-  				word(GeneralValue),[;],declaration(Declaration).
+  word(GeneralValue),[;],declaration(Declaration).
 
 % Rule for assigning values to variable.
 assignValue(t_assign(GeneralValue,Expression)) --> word(GeneralValue),
-    													[=] ,exp(Expression), [;].
+   												 [=] ,exp(Expression), [;].
 assignValue(t_assign(GeneralValue,BoolExpression)) --> word(GeneralValue),
                                                                  [is], boolExp(BoolExpression), [;].
-assignValue(t_assign_wordlength(GeneralValue,WordLength)) --> word(GeneralValue),
-                                                                 [=] ,wordLength(WordLength), [;].
-assignValue(t_assign_wordconcat(GeneralValue,WordConcat)) --> word(GeneralValue)
-                                                                 , [=] ,wordConcat(WordConcat), [;].
-assignValue(t_assign(GeneralValue,TernaryExpression))  --> word(GeneralValue),
-                                                                  [=], ternary(TernaryExpression), [;].
+assignValue(t_assign(GeneralValue,TernaryExpression)) --> word(GeneralValue),
+                                                                 [=], ternary(TernaryExpression), [;].
 
 % Rule for reading the input from system.
 readValue(t_read_input(Identifier)) --> [input], word(Identifier), [;].
@@ -182,21 +181,17 @@ operation(t_operation(ReadValue)) --> readValue(ReadValue).
 routine(t_if_routine(Condition,TrueOperation,FalseOperation)) --> [if], condition(Condition), [then],
                                           operation(TrueOperation), [else], operation(FalseOperation), [endif].
 routine(t_while_routine(Condition,Operation)) -->[while],condition(Condition),[do],operation(Operation),[endwhile].
-routine(t_for_routine(Condition,Operation)) --> [when], condition(Condition), [repeat], operation(Operation), [endrepeat].
-routine(t_for_range_routine(GeneralValue,FromNumber,ToNumber,Operation)) --> [when], word(GeneralValue), [between], [range],["("],number(FromNumber),number(ToNumber),[")"],
-    [repeat],operation(Operation),[endrepeat].
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% TODO : See if this fits anywhere else then routine.
+routine(t_for_routine(Condition,Expression,Operation)) --> [when],['('], condition(Condition),[;],assignValue(Expression)
+    								,[')'], [repeat], operation(Operation), [endrepeat].
+routine(t_for_range_routine(GeneralValue,FromNumber,ToNumber,Operation)) --> [when], word(GeneralValue), [between], [range],
+    ['('],number(FromNumber),number(ToNumber),[')'],[repeat],operation(Operation),[endrepeat].
 
 routine(t_inc_operator(Identifier)) --> word(Identifier),[+],[+],[;].
 routine(t_dec_operator(Identifier)) --> word(Identifier),[-],[-],[;].
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 
 % Rule for evaluating ternary expressions.
-ternary(t_ternary(BoolExp,GeneralValue1,GeneralValue2)) --> ["("],boolExp(BoolExp),[")"],[?],exp(GeneralValue1),[:],exp(GeneralValue2).
+ternary(t_ternary(BoolExp,GeneralValue1,GeneralValue2)) --> ['('],condition(BoolExp),[')'],[?],number(GeneralValue1),[:],number(GeneralValue2).
 
 % Rule for conditions in routines.
 condition(t_and_condition(BoolExp1,BoolExp2)) --> boolExp(BoolExp1), [and], boolExp(BoolExp2).
@@ -216,33 +211,27 @@ boolExp(t_greater_than_expression(Expression1,Expression2)) --> exp(Expression1)
 boolExp(t_less_than_equal_expression(Expression1,Expression2)) --> exp(Expression1), [<],[=], exp(Expression2).
 boolExp(t_greater_than_equal_expression(Expression1,Expression2)) -->  exp(Expression1), [>],[=], exp(Expression2).
 
-% Rule for evaluating the horizontal expression(includes addition & difference).
-exp(t_add_horizontal_expression(Expression,VerticalExpression)) --> verticalExp(VerticalExpression),[+],exp(Expression).
-exp(t_sub_horizontal_expression(Expression,VerticalExpression)) --> verticalExp(VerticalExpression),[-],exp(Expression).
+exp(t_add_horizontal_expression(Expression, VerticalExpression)) --> verticalExp(Expression), [+], exp(VerticalExpression).
+exp(t_sub_horizontal_expression(Expression, VerticalExpression)) --> verticalExp(Expression), [-], exp(VerticalExpression).
 exp(t_expr(Expression)) --> verticalExp(Expression).
 
-% Rule for evaluating the vertical expression(includes multiplication & division).
-
-verticalExp(t_div_vertical_expression(Number, Expression)) --> negativeNumber(Number),
-    													[/], verticalExp(Expression).
-verticalExp(t_div_vertical_expression(Number, Expression)) --> number(Number),
-    													[/], verticalExp(Expression).
-verticalExp(t_div_vertical_expression(Identifier, Expression)) --> word(Identifier),
-    													[/], verticalExp(Expression).
-verticalExp(t_mul_vertical_expression(Number, Expression)) --> negativeNumber(Number),
-    													[*], verticalExp(Expression).
-verticalExp(t_mul_vertical_expression(Number, Expression)) --> number(Number),
-    													[*], verticalExp(Expression).
-verticalExp(t_mul_vertical_expression(Identifier, Expression)) --> word(Identifier),
-    													[*], verticalExp(Expression).
-verticalExp(t_id(Identifier)) --> word(Identifier).
+verticalExp(t_div_vertical_expression(Number, Expression)) --> negativeNumber(Number),[/], verticalExp(Expression).
+verticalExp(t_div_vertical_expression(Number, Expression)) --> number(Number),[/], verticalExp(Expression).
+verticalExp(t_div_vertical_expression(Identifier, Expression)) --> word(Identifier),[/], verticalExp(Expression).
+verticalExp(t_mul_vertical_expression(Number, Expression)) --> negativeNumber(Number),[*], verticalExp(Expression).
+verticalExp(t_mul_vertical_expression(Number, Expression)) --> number(Number),[*], verticalExp(Expression).
+verticalExp(t_mul_vertical_expression(Identifier, Expression)) --> word(Identifier), [*], verticalExp(Expression).
 verticalExp(t_id(Number)) --> number(Number).
 verticalExp(t_id(NegNumber)) --> negativeNumber(NegNumber).
+verticalExp(t_id(Identifier)) --> word(Identifier).
 
-% Rule for negative numbers,negative numbers,words.
-negativeNumber(t_negative_number(Number)) --> [-],number(Number).
+
+%Rule for Identifier
 word(t_word(Word)) --> [Word],{atom(Word)}.
-number(t_number(Number)) --> [Number],{number(Number)}.
+
+%Rules for numbers
+negativeNumber(t_negative_number(NumberNode)) --> [-],number(NumberNode).
+number(t_number(NumberNode)) --> [NumberNode],{number(NumberNode)}.
 
 % Rule for comments inside block.
 comment(t_comment(Statement)) --> [!] , statement(Statement), [!].

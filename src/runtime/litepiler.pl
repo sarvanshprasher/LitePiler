@@ -151,18 +151,13 @@ operation(t_operation(ReadValue)) --> readValue(ReadValue).
 routine(t_if_routine(Condition,TrueOperation,FalseOperation)) --> [if], condition(Condition), [then],
                                           operation(TrueOperation), [else], operation(FalseOperation), [endif].
 routine(t_while_routine(Condition,Operation)) -->[while],condition(Condition),[do],operation(Operation),[endwhile].
-routine(t_for_routine(Condition,Expression,Operation)) --> [when],['('], condition(Condition),[;],assignValue(Expression),[')'], [repeat], operation(Operation), [endrepeat].
-%routine(t_for_range_routine(GeneralValue,FromNumber,ToNumber,Operation)) --> [when], word(GeneralValue), [between], [range],
-%    ["("],number(FromNumber),number(ToNumber),[")"],
-%    [repeat],operation(Operation),[endrepeat].
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% TODO : See if this fits anywhere else then routine.
+routine(t_for_routine(Condition,Expression,Operation)) --> [when],['('], condition(Condition),[;],assignValue(Expression)
+    								,[')'], [repeat], operation(Operation), [endrepeat].
+routine(t_for_range_routine(GeneralValue,FromNumber,ToNumber,Operation)) --> [when], word(GeneralValue), [between], [range],
+    ['('],number(FromNumber),number(ToNumber),[')'],[repeat],operation(Operation),[endrepeat].
 
 routine(t_inc_operator(Identifier)) --> word(Identifier),[+],[+],[;].
 routine(t_dec_operator(Identifier)) --> word(Identifier),[-],[-],[;].
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 % Rule for evaluating ternary expressions.
@@ -280,19 +275,19 @@ eval_assign(t_assign(Identifier,Expression),EnvIn,EnvOut) :- eval_word(Identifie
     eval_expr(Expression,Val,EnvIn,EnvIn),
     update(Ident,Val,EnvIn,EnvOut),!.
 
-% eval_assign(t_assign(Identifier,Expression),EnvIn,EnvOut) :- eval_word(Identifier,_,EnvIn,EnvIn,Ident),
-%     eval_bool(Expression,Val,EnvIn,EnvIn),
-%   update(Ident,Val,EnvIn,EnvOut),!.
+eval_assign(t_assign(Identifier,Expression),EnvIn,EnvOut) :- eval_word(Identifier,_,EnvIn,EnvIn,Ident),
+     eval_bool(Expression,Val,EnvIn,EnvIn),
+   update(Ident,Val,EnvIn,EnvOut),!.
 
- eval_assign(t_assign_wordlength(Identifier,Word),EnvIn,EnvOut) :- eval_word_length(Word,Val,EnvIn,EnvIn),
+eval_assign(t_assign_wordlength(Identifier,Word),EnvIn,EnvOut) :- eval_word_length(Word,Val,EnvIn,EnvIn),
     update(Identifier,Val,EnvIn,EnvOut).
 
- eval_assign(t_assign(Identifier,TernaryExpression),EnvIn,EnvOut) :- eval_word(Identifier,_,EnvIn1,EnvIn,Ident),
+eval_assign(t_assign(Identifier,TernaryExpression),EnvIn,EnvOut) :- eval_word(Identifier,_,EnvIn1,EnvIn,Ident),
      eval_ternary(TernaryExpression,EnvIn1,Val),
      update(Ident,Val,EnvIn,EnvOut),!.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% TODO : eval assign for wordconcat,ternary.
+% TODO : eval assign for wordconcat
 
 eval_ternary(t_ternary(Boolean,_,FalseRoutine),EnvIn,EnvOut):-eval_condition(Boolean,Val,EnvIn,EnvIn),
                                                               Val = false,!,
@@ -356,10 +351,17 @@ eval_routine(t_for_routine(Condition,Expression,Operation),EnvIn,EnvOut) :- eval
 
 eval_routine(t_for_routine(Condition,_Expression,_Operation),EnvIn,EnvOut):- eval_condition(Condition,Val,EnvIn,EnvIn), Val = false,!,EnvOut = EnvIn.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% TODO : eval routine for loop(traditional and range)
+eval_routine(t_for_range_routine(Identifier,t_number(FromNumber),t_number(ToNumber),Operation),EnvIn,EnvOut) :-
+    														  FromNumber < ToNumber,
+    														  eval_word(Identifier,Val,EnvIn,EnvIn,Ident),
+    														  Val1 is FromNumber + 1,
+    														  update(Ident,Val1,EnvIn,EnvIn1),
+    														  eval_operation(Operation,EnvIn1,EnvIn2),
+                                                              eval_routine(t_for_range_routine(Identifier,t_number(Val1),t_number(ToNumber),Operation)
+                                                                           ,EnvIn2,EnvOut).
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+eval_routine(t_for_range_routine(_Identifier,t_number(FromNumber),t_number(ToNumber),_Operation),EnvIn,EnvOut):- FromNumber >= ToNumber,EnvOut = EnvIn.
+
 
 % 'eval_condition' evaluates the condition block.
 
