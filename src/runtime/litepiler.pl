@@ -151,11 +151,10 @@ operation(t_operation(ReadValue)) --> readValue(ReadValue).
 routine(t_if_routine(Condition,TrueOperation,FalseOperation)) --> [if], condition(Condition), [then],
                                           operation(TrueOperation), [else], operation(FalseOperation), [endif].
 routine(t_while_routine(Condition,Operation)) -->[while],condition(Condition),[do],operation(Operation),[endwhile].
-%routine(t_for_routine(Declaration,Condition,Expression,Operation)) --> [when],[(],declaration(Declaration), condition(Condition),exp(Expression)
-%                                                       ,[)], [repeat], operation(Operation), [endrepeat].
-routine(t_for_range_routine(GeneralValue,FromNumber,ToNumber,Operation)) --> [when], word(GeneralValue), [between], [range],
-    ["("],number(FromNumber),number(ToNumber),[")"],
-    [repeat],operation(Operation),[endrepeat].
+routine(t_for_routine(Condition,Expression,Operation)) --> [when],['('], condition(Condition),[;],assignValue(Expression),[')'], [repeat], operation(Operation), [endrepeat].
+%routine(t_for_range_routine(GeneralValue,FromNumber,ToNumber,Operation)) --> [when], word(GeneralValue), [between], [range],
+%    ["("],number(FromNumber),number(ToNumber),[")"],
+%    [repeat],operation(Operation),[endrepeat].
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % TODO : See if this fits anywhere else then routine.
@@ -350,6 +349,12 @@ eval_routine(t_inc_operator(Identifier),EnvIn,EnvOut) :- eval_word(Identifier,Va
 eval_routine(t_dec_operator(Identifier),EnvIn,EnvOut) :- eval_word(Identifier,Val,EnvIn,EnvIn,Ident), Val1 is Val - 1,
     update(Ident,Val1,EnvIn,EnvOut).
 
+eval_routine(t_for_routine(Condition,Expression,Operation),EnvIn,EnvOut) :- eval_condition(Condition,Val,EnvIn,EnvIn),Val = true ,
+                                                              eval_assign(Expression,EnvIn,EnvIn1),
+    														  eval_operation(Operation,EnvIn1,EnvIn2),
+                                                              eval_routine(t_for_routine(Condition,Expression,Operation),EnvIn2,EnvOut).
+
+eval_routine(t_for_routine(Condition,_Expression,_Operation),EnvIn,EnvOut):- eval_condition(Condition,Val,EnvIn,EnvIn), Val = false,!,EnvOut = EnvIn.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % TODO : eval routine for loop(traditional and range)
