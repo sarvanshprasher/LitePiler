@@ -126,9 +126,11 @@ declaration(t_declaration(VarType,GeneralValue,Declaration)) --> varType(VarType
 
 % Rule for assigning values to variable.
 assignValue(t_assign(GeneralValue,Expression)) --> word(GeneralValue),
-    [=] ,exp(Expression), [;].
+   												 [=] ,exp(Expression), [;].
 assignValue(t_assign(GeneralValue,BoolExpression)) --> word(GeneralValue),
                                                                  [is], boolExp(BoolExpression), [;].
+assignValue(t_assign(GeneralValue,TernaryExpression)) --> word(GeneralValue),
+                                                                 [=], ternary(TernaryExpression), [;].
 
 % Rule for reading the input from system.
 readValue(t_read_input(Identifier)) --> [input], word(Identifier), [;].
@@ -149,7 +151,8 @@ operation(t_operation(ReadValue)) --> readValue(ReadValue).
 routine(t_if_routine(Condition,TrueOperation,FalseOperation)) --> [if], condition(Condition), [then],
                                           operation(TrueOperation), [else], operation(FalseOperation), [endif].
 routine(t_while_routine(Condition,Operation)) -->[while],condition(Condition),[do],operation(Operation),[endwhile].
-routine(t_for_routine(Condition,Operation)) --> [when], condition(Condition), [repeat], operation(Operation), [endrepeat].
+%routine(t_for_routine(Declaration,Condition,Expression,Operation)) --> [when],[(],declaration(Declaration), condition(Condition),exp(Expression)
+%                                                       ,[)], [repeat], operation(Operation), [endrepeat].
 routine(t_for_range_routine(GeneralValue,FromNumber,ToNumber,Operation)) --> [when], word(GeneralValue), [between], [range],
     ["("],number(FromNumber),number(ToNumber),[")"],
     [repeat],operation(Operation),[endrepeat].
@@ -164,7 +167,7 @@ routine(t_dec_operator(Identifier)) --> word(Identifier),[-],[-],[;].
 
 
 % Rule for evaluating ternary expressions.
-ternary(t_ternary(BoolExp,GeneralValue1,GeneralValue2)) --> ["("],boolExp(BoolExp),[")"],[?],exp(GeneralValue1),[:],exp(GeneralValue2).
+ternary(t_ternary(BoolExp,GeneralValue1,GeneralValue2)) --> ['('],condition(BoolExp),[')'],[?],number(GeneralValue1),[:],number(GeneralValue2).
 
 % Rule for conditions in routines.
 condition(t_and_condition(BoolExp1,BoolExp2)) --> boolExp(BoolExp1), [and], boolExp(BoolExp2).
@@ -285,20 +288,20 @@ eval_assign(t_assign(Identifier,Expression),EnvIn,EnvOut) :- eval_word(Identifie
  eval_assign(t_assign_wordlength(Identifier,Word),EnvIn,EnvOut) :- eval_word_length(Word,Val,EnvIn,EnvIn),
     update(Identifier,Val,EnvIn,EnvOut).
 
-% eval_assign(t_assign(Identifier,TernaryExpression),EnvIn,EnvOut) :- eval_word(Identifier,_,EnvIn,EnvIn,Ident),
-%     eval_ternary(TernaryExpression,Val,EnvIn),
-%     update(Ident,Val,EnvIn,EnvOut),!.
+ eval_assign(t_assign(Identifier,TernaryExpression),EnvIn,EnvOut) :- eval_word(Identifier,_,EnvIn1,EnvIn,Ident),
+     eval_ternary(TernaryExpression,EnvIn1,Val),
+     update(Ident,Val,EnvIn,EnvOut),!.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % TODO : eval assign for wordconcat,ternary.
 
-eval_ternary(t_ternary(Boolean,_,FalseRoutine),EnvIn,EnvOut):-eval_bool(Boolean,Val,EnvIn,EnvIn),
+eval_ternary(t_ternary(Boolean,_,FalseRoutine),EnvIn,EnvOut):-eval_condition(Boolean,Val,EnvIn,EnvIn),
                                                               Val = false,!,
-                                                              eval_expr(FalseRoutine,EnvIn,EnvIn,EnvOut).
+                                                              eval_number(FalseRoutine,EnvOut,EnvIn,EnvIn).
 
-eval_ternary(t_ternary(Boolean,TrueRoutine,_),EnvIn,EnvOut):- eval_bool(Boolean,Val,EnvIn,EnvIn),
+eval_ternary(t_ternary(Boolean,TrueRoutine,_),EnvIn,EnvOut):- eval_condition(Boolean,Val,EnvIn,EnvIn),
                                                               Val = true,
-                                                              eval_expr(TrueRoutine,EnvIn,EnvIn,EnvOut).
+                                                              eval_number(TrueRoutine,EnvOut,EnvIn,EnvIn).
 
 eval_read(t_read_input(Identifier), EnvIn, EnvOut):- read(Id), eval_word(Identifier,_,EnvIn,EnvIn1,Ident),
                                         update(Ident, Id, EnvIn1, EnvOut).
@@ -341,11 +344,12 @@ eval_routine(t_while_routine(Boolean,Routine),EnvIn,EnvOut) :- eval_condition(Bo
                                                               eval_operation(Routine,EnvIn,EnvIn1),
                                                               eval_routine(t_while_routine(Boolean,Routine),EnvIn1,EnvOut).
 
-eval_routine(t_inc_operator(Identifier),EnvIn,EnvOut) :- eval_expr(Identifier,Val,EnvIn,EnvIn), Val1 is Val + 1,
-    update(Identifier,Val1,EnvIn,EnvOut).
+eval_routine(t_inc_operator(Identifier),EnvIn,EnvOut) :- eval_word(Identifier,Val,EnvIn,EnvIn,Ident), Val1 is Val + 1,
+    update(Ident,Val1,EnvIn,EnvOut).
 
-eval_routine(t_dec_operator(Identifier),EnvIn,EnvOut) :- eval_expr(Identifier,Val,EnvIn,EnvIn), Val1 is Val - 1,
-    update(Identifier,Val1,EnvIn,EnvOut).
+eval_routine(t_dec_operator(Identifier),EnvIn,EnvOut) :- eval_word(Identifier,Val,EnvIn,EnvIn,Ident), Val1 is Val - 1,
+    update(Ident,Val1,EnvIn,EnvOut).
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % TODO : eval routine for loop(traditional and range)
