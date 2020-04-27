@@ -149,7 +149,8 @@ operation(t_operation(ReadValue)) --> readValue(ReadValue).
 routine(t_if_routine(Condition,TrueOperation,FalseOperation)) --> [if], condition(Condition), [then],
                                           operation(TrueOperation), [else], operation(FalseOperation), [endif].
 routine(t_while_routine(Condition,Operation)) -->[while],condition(Condition),[do],operation(Operation),[endwhile].
-routine(t_for_routine(Condition,Operation)) --> [when], condition(Condition), [repeat], operation(Operation), [endrepeat].
+%routine(t_for_routine(Declaration,Condition,Expression,Operation)) --> [when],[(],declaration(Declaration), condition(Condition),exp(Expression)
+%                                                       ,[)], [repeat], operation(Operation), [endrepeat].
 routine(t_for_range_routine(GeneralValue,FromNumber,ToNumber,Operation)) --> [when], word(GeneralValue), [between], [range],
     ["("],number(FromNumber),number(ToNumber),[")"],
     [repeat],operation(Operation),[endrepeat].
@@ -341,11 +342,12 @@ eval_routine(t_while_routine(Boolean,Routine),EnvIn,EnvOut) :- eval_condition(Bo
                                                               eval_operation(Routine,EnvIn,EnvIn1),
                                                               eval_routine(t_while_routine(Boolean,Routine),EnvIn1,EnvOut).
 
-eval_routine(t_inc_operator(Identifier),EnvIn,EnvOut) :- eval_expr(Identifier,Val,EnvIn,EnvIn), Val1 is Val + 1,
-    update(Identifier,Val1,EnvIn,EnvOut).
+eval_routine(t_inc_operator(Identifier),EnvIn,EnvOut) :- eval_word(Identifier,Val,EnvIn,EnvIn,Ident), Val1 is Val + 1,
+    update(Ident,Val1,EnvIn,EnvOut).
 
-eval_routine(t_dec_operator(Identifier),EnvIn,EnvOut) :- eval_expr(Identifier,Val,EnvIn,EnvIn), Val1 is Val - 1,
-    update(Identifier,Val1,EnvIn,EnvOut).
+eval_routine(t_dec_operator(Identifier),EnvIn,EnvOut) :- eval_word(Identifier,Val,EnvIn,EnvIn,Ident), Val1 is Val - 1,
+    update(Ident,Val1,EnvIn,EnvOut).
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % TODO : eval routine for loop(traditional and range)
