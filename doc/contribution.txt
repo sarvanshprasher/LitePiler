@@ -33,8 +33,16 @@ Abhishek:
 Rule for evaluating the vertical expression(includes multiplication & division).
 Rule for evaluating the expression inside parentheses.
 Rule for evaluating the expression inside parentheses.
-Rule for including word & numbers.
+Rule for negative numbers.
+Rule for including words.
+Rule for comments Inside block.
+Rule for statements inside comment.
+Rule for finding length of a string.
+Rule for String concatenation function.
 Rule for printing values.
+Eval expression for evaluating expression blocks.
+Eval Print for evaluating print statements.
+
 
 ------------------------------------------------------------------------------------------------------------------------------
 Milestone 2 (Tentative Future plan): 
