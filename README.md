@@ -51,30 +51,31 @@ litepiler('/Users/sarvanshprasher/Desktop/Study material/SER 502/SER502-Spring20
 ## Sample programs for language :
 
 
-- Fibonacci Pattern :
+- **Fibonacci Pattern :**
 
-litepiler('/Users/sarvanshprasher/Desktop/Study material/SER 502/SER502-Spring2020-Team20/data/fibonacci.lp').
+    litepiler('/Users/sarvanshprasher/Desktop/Study material/SER 502/SER502-Spring2020-Team20/data/fibonacci.lp').
 
-- Factorial of a number : 
+- **Factorial of a number :** 
 
-litepiler('/Users/sarvanshprasher/Desktop/Study material/SER 502/SER502-Spring2020-Team20/data/factorialNumber.lp').
+    litepiler('/Users/sarvanshprasher/Desktop/Study material/SER 502/SER502-Spring2020-Team20/data/factorialNumber.lp').
 
-- Power of a number : 
+- **Power of a number :** 
 
-litepiler('/Users/sarvanshprasher/Desktop/Study material/SER 502/SER502-Spring2020-Team20/data/powerOfNumber.lp').
+    litepiler('/Users/sarvanshprasher/Desktop/Study material/SER 502/SER502-Spring2020-Team20/data/powerOfNumber.lp').
 
-- Ternary Operation : 
-
- litepiler('/Users/sarvanshprasher/Desktop/Study material/SER 502/SER502-Spring2020-Team20/data/ternary.lp').
-
-- Printing Natural Numbers : 
-
-litepiler('/Users/sarvanshprasher/Desktop/Study material/SER 502/SER502-Spring2020-Team20/data/printNumber.lp').
+- **Ternary Operation :** 
 
 
-- For Range Print Numbers : 
+    litepiler('/Users/sarvanshprasher/Desktop/Study material/SER 502/SER502-Spring2020-Team20/data/ternary.lp').
 
-litepiler('/Users/sarvanshprasher/Desktop/Study material/SER 502/SER502-Spring2020-Team20/data/rangeInForLoop.lp').
+- **Printing Natural Numbers :** 
+
+    litepiler('/Users/sarvanshprasher/Desktop/Study material/SER 502/SER502-Spring2020-Team20/data/printNumber.lp').
+
+
+- **For Range Print Numbers :** 
+
+    litepiler('/Users/sarvanshprasher/Desktop/Study material/SER 502/SER502-Spring2020-Team20/data/rangeInForLoop.lp').
 
 
 
