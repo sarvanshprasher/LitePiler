@@ -1,3 +1,4 @@
+
 % Interpreter for language
 
 eval_parse(Program, EnvOut) :- eval_program(Program,[],EnvOut).
@@ -117,7 +118,7 @@ eval_routine(t_dec_operator(Identifier),EnvIn,EnvOut) :- eval_word(Identifier,Va
 
 eval_routine(t_for_routine(Condition,Expression,Operation),EnvIn,EnvOut) :- eval_condition(Condition,Val,EnvIn,EnvIn),Val = true ,
                                                               eval_assign(Expression,EnvIn,EnvIn1),
-    														  eval_operation(Operation,EnvIn1,EnvIn2),
+    														                              eval_operation(Operation,EnvIn1,EnvIn2),
                                                               eval_routine(t_for_routine(Condition,Expression,Operation),EnvIn2,EnvOut).
 
 eval_routine(t_for_routine(Condition,_Expression,_Operation),EnvIn,EnvOut):- eval_condition(Condition,Val,EnvIn,EnvIn), Val = false,!,EnvOut = EnvIn.

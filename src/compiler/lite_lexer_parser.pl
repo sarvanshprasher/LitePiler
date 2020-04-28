@@ -98,6 +98,10 @@ lexer(Tokens) -->
         ":", !, {Token = :};
         "?", !, {Token = ?};
         ".", !, {Token = .};
+        ",", !, {Token = ,};
+        ":", !, {Token = :};
+        "(", !, {Token = '('};
+        ")", !, {Token = ')'};
         "length", !, {Token = length};
         "join", !, {Token = join};
         digit(D),  !, number(D, N), { Token = N };
@@ -129,8 +133,6 @@ identifier(L, Id) --> alphanum(As),{ atom_codes(Id, [L|As]) }.
 
 %-----------------------------%%%%%%%%%%%%%%%%%%%-------------------------------
 % Parser for language
-
-:- use_rendering(svgtree).
 
 :- table exp/3,verticalExp/3.
 
@@ -181,10 +183,10 @@ operation(t_operation(ReadValue)) --> readValue(ReadValue).
 routine(t_if_routine(Condition,TrueOperation,FalseOperation)) --> [if], condition(Condition), [then],
                                           operation(TrueOperation), [else], operation(FalseOperation), [endif].
 routine(t_while_routine(Condition,Operation)) -->[while],condition(Condition),[do],operation(Operation),[endwhile].
-routine(t_for_routine(Condition,Expression,Operation)) --> [when],['('], condition(Condition),[;],assignValue(Expression)
+routine(t_for_routine(Condition,Expression,Operation)) --> [when],['('], condition(Condition),[:],assignValue(Expression)
     								,[')'], [repeat], operation(Operation), [endrepeat].
 routine(t_for_range_routine(GeneralValue,FromNumber,ToNumber,Operation)) --> [when], word(GeneralValue), [between], [range],
-    ['('],number(FromNumber),number(ToNumber),[')'],[repeat],operation(Operation),[endrepeat].
+    ['('],number(FromNumber),[,],number(ToNumber),[')'],[repeat],operation(Operation),[endrepeat].
 
 routine(t_inc_operator(Identifier)) --> word(Identifier),[+],[+],[;].
 routine(t_dec_operator(Identifier)) --> word(Identifier),[-],[-],[;].
