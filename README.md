@@ -14,6 +14,10 @@ This language was written in four layers :
 
 > Fourth part was to write Interpreter. For the rules written in parser, we have written eval function for them which will help us in evaluating the end result of the program. (Interpreter)
 
+**Flow diagram of compiler**
+![alt text](https://github.com/sarvanshprasher/SER502-Spring2020-Team20/blob/master/Flow%20Diagram.jpg)
+
+
 ## Tools used for language : 
 
 This language was developed and built on MacOs but it can be compiled and run on any platform. It is also a system indepedent language.
@@ -85,13 +89,3 @@ Rohit Kumar Singh (Link)
 Sarvansh Prasher (Link)
 Surya Chatterjee ( Link)
 
-
-
-**Flow diagram of compiler**
-![alt text](https://github.com/sarvanshprasher/SER502-Spring2020-Team20/blob/master/Flow%20Diagram.jpg)
-
-**Flow 
-
-**How to run code
-
-**
