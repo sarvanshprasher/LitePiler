@@ -37,8 +37,8 @@ Rule for including words and numbers.
 
 
 ------------------------------------------------------------------------------------------------------------------------------
-Milestone 2 (Tentative Future plan): 
-In future each one of us are planning to write corresponding rules for Lexer, Parser and Interpreter Based on the rules we have created so far. So each team member will be working on the lexer, parser and interpreter. 
+Final Milestone :
+
 
 Abhishek:
 Updated the rule for expression inside parenthesis.
@@ -52,3 +52,30 @@ Rule for finding length of a string.
 Rule for String concatenation function.
 Eval expression for evaluating expression blocks.
 Eval Print for evaluating print statements.
+
+
+Sarvansh:
+Implemented the lexer part of the programming language.
+Wrote evaluation function of the parse,program,structure,declaration.
+Wrote sample programs in our programming language.
+Wrote parsing rules for parse,program,structure,declaration.
+
+
+Rohit : 
+Implemented the linking up of parser with lexer by file access functionalities. 
+Rules for parser for operation and routine block .
+Rules for interepretor for operation and routine block .
+Sample programs for programming language.
+
+
+Surya Chatterjee :
+
+
+
+
+
+
+
+
+
+
