@@ -19,7 +19,6 @@ This language was written in four layers :
 ## Flow diagram of compiler
 ![alt text](https://github.com/sarvanshprasher/SER502-Spring2020-Team20/blob/master/Flow%20Diagram.jpg)
 
-
 ## Tools used for language : 
 
 This language was developed and built on MacOs but it can be compiled and run on any platform. It is also a system indepedent language.
@@ -50,8 +49,6 @@ This language was developed and built on MacOs but it can be compiled and run on
 
 6. A new file wil be created which will contain the parse tree of program with extension .lpy . That parse tree will be automatically executed and loaded into interpreter for giving you the output value on terminal.
 
-
-
 ## Sample programs for language :
 
 
@@ -77,7 +74,7 @@ This language was developed and built on MacOs but it can be compiled and run on
     litepiler('/Users/sarvanshprasher/Desktop/Study material/SER 502/SER502-Spring2020-Team20/data/printNumber.lp').
 
 
-- **[For Range Print Numbers:][5]** 
+- **[For Range Print Numbers:][14]** 
 
     litepiler('/Users/sarvanshprasher/Desktop/Study material/SER 502/SER502-Spring2020-Team20/data/rangeInForLoop.lp').
 
@@ -98,7 +95,7 @@ This language was developed and built on MacOs but it can be compiled and run on
   [7]: https://github.com/sarvanshprasher/SER502-Spring2020-Team20/tree/master/data
   [8]: https://github.com/sarvanshprasher/SER502-Spring2020-Team20
   [9]: https://github.com/sarvanshprasher/SER502-Spring2020-Team20/blob/master/data/fibonacci.lp
-  [10]: https://github.com/sarvanshprasher/SER502-Spring2020-Team20/blob/master/data/fibonacci.lp
+  [10]: https://github.com/sarvanshprasher/SER502-Spring2020-Team20/blob/master/data/factorialNumber.lp
   [11]: https://github.com/sarvanshprasher/SER502-Spring2020-Team20/blob/master/data/powerOfNumber.lp
   [12]: https://github.com/sarvanshprasher/SER502-Spring2020-Team20/blob/master/data/ternary.lp
   [13]: https://github.com/sarvanshprasher/SER502-Spring2020-Team20/blob/master/data/printNumber.lp
