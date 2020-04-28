@@ -6,15 +6,15 @@ This is a group project for SER502. In this project we have developed a programm
 
 This language was written in four layers : 
 
-> First part was to design a grammar relevant to language and which compiler could understand.We used Context Free Grammar to write programming rules for this language. ( Grammar)
+- First part was to design a grammar relevant to language and which compiler could understand.We used Context Free Grammar to write programming rules for this language. ( Grammar)
 
-> Second part was to mould rules according to Parser. This part is used to create parse tree for programs written in  language. (Parser)
+- Second part was to mould rules according to Parser. This part is used to create parse tree for programs written in  language. (Parser)
 
-> Third part was to create Lexer.In this part we created a list of keywords as programming blocks in programming launguage . This layer is responsible for taking out the tokens from programs and map them to parser(parse tree). ( Lexer)
+- Third part was to create Lexer.In this part we created a list of keywords as programming blocks in programming launguage . This layer is responsible for taking out the tokens from programs and map them to parser(parse tree). ( Lexer)
 
-> Fourth part was to write Interpreter. For the rules written in parser, we have written eval function for them which will help us in evaluating the end result of the program. (Interpreter)
+- Fourth part was to write Interpreter. For the rules written in parser, we have written eval function for them which will help us in evaluating the end result of the program. (Interpreter)
 
-**Flow diagram of compiler**
+## Flow diagram of compiler
 ![alt text](https://github.com/sarvanshprasher/SER502-Spring2020-Team20/blob/master/Flow%20Diagram.jpg)
 
 
@@ -22,9 +22,9 @@ This language was written in four layers :
 
 This language was developed and built on MacOs but it can be compiled and run on any platform. It is also a system indepedent language.
 
-SWI-Prolog (Web Version) - www.swi-prolog.org
-SWI-Prolog (Desktop Version) - http://www.swi-prolog.org/download/stable
-Any Text Editor - Example(Visual Studio,Atom,SublimeText)
+- SWI-Prolog (Web Version) - www.swi-prolog.org
+- SWI-Prolog (Desktop Version) - http://www.swi-prolog.org/download/stable
+- Any Text Editor - Example(Visual Studio,Atom,SublimeText)
 
 ## Build and run the language
 
@@ -51,32 +51,28 @@ litepiler('/Users/sarvanshprasher/Desktop/Study material/SER 502/SER502-Spring20
 ## Sample programs for language :
 
 
-> Fibonacci Pattern :
+- Fibonacci Pattern :
 
 litepiler('/Users/sarvanshprasher/Desktop/Study material/SER 502/SER502-Spring2020-Team20/data/fibonacci.lp').
 
-
-> Factorial of a number : 
+- Factorial of a number : 
 
 litepiler('/Users/sarvanshprasher/Desktop/Study material/SER 502/SER502-Spring2020-Team20/data/factorialNumber.lp').
 
-
-> Power of a number : 
+- Power of a number : 
 
 litepiler('/Users/sarvanshprasher/Desktop/Study material/SER 502/SER502-Spring2020-Team20/data/powerOfNumber.lp').
 
-
-> Ternary Operation : 
+- Ternary Operation : 
 
  litepiler('/Users/sarvanshprasher/Desktop/Study material/SER 502/SER502-Spring2020-Team20/data/ternary.lp').
 
-
-> Printing Natural Numbers : 
+- Printing Natural Numbers : 
 
 litepiler('/Users/sarvanshprasher/Desktop/Study material/SER 502/SER502-Spring2020-Team20/data/printNumber.lp').
 
 
-> For Range Print Numbers : 
+- For Range Print Numbers : 
 
 litepiler('/Users/sarvanshprasher/Desktop/Study material/SER 502/SER502-Spring2020-Team20/data/rangeInForLoop.lp').
 
