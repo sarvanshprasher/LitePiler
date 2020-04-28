@@ -69,6 +69,9 @@ Sample programs for programming language.
 
 
 Surya Chatterjee :
+Implemented module for increment and decrement of the for loop.
+Added eval modules for condition checking.
+Added eval modules for ternary expression.
 
 
 
