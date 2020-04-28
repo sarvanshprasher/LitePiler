@@ -36,13 +36,15 @@ This language was developed and built on MacOs but it can be compiled and run on
 
 4. In the terminal, consult path to your program ---> consult('PATH-TO-YOUR-FILE/SER502-Spring2020-Team20/src/runtime/litepiler.pl'). 
 
-For Example :-
-consult('/Users/sarvanshprasher/Desktop/Study material/SER 502/SER502-Spring2020-Team20/src/runtime/litepiler.pl'). 
+**For Example :-**
+
+    consult('/Users/sarvanshprasher/Desktop/Study material/SER 502/SER502-Spring2020-Team20/src/runtime/litepiler.pl'). 
 
 5. Now for running your program, type this in terminal --->  litepiler('<PATH-TO-YOUR-FILE/Program.lp>').
 
-For Example :- 
-litepiler('/Users/sarvanshprasher/Desktop/Study material/SER 502/SER502-Spring2020-Team20/data/fibonacci.lp').
+**For Example :-** 
+
+    litepiler('/Users/sarvanshprasher/Desktop/Study material/SER 502/SER502-Spring2020-Team20/data/fibonacci.lp').
 
 6. A new file wil be created which will contain the parse tree of program with extension .lpy . That parse tree will be automatically executed and loaded into interpreter for giving you the output value on terminal.
 
@@ -81,8 +83,8 @@ litepiler('/Users/sarvanshprasher/Desktop/Study material/SER 502/SER502-Spring20
 
 ## Contributors :
 
-Abhishek Haksar ( Link)
-Rohit Kumar Singh (Link)
-Sarvansh Prasher (Link)
-Surya Chatterjee ( Link)
+- Abhishek Haksar ( Link)
+- Rohit Kumar Singh (Link)
+- Sarvansh Prasher (Link)
+- Surya Chatterjee ( Link)
 
