@@ -33,17 +33,22 @@ Abhishek:
 Rule for evaluating the vertical expression(includes multiplication & division).
 Rule for evaluating the expression inside parentheses.
 Rule for evaluating the expression inside parentheses.
-Rule for negative numbers.
-Rule for including words.
-Rule for comments Inside block.
-Rule for statements inside comment.
-Rule for finding length of a string.
-Rule for String concatenation function.
-Rule for printing values.
-Eval expression for evaluating expression blocks.
-Eval Print for evaluating print statements.
+Rule for including words and numbers.
 
 
 ------------------------------------------------------------------------------------------------------------------------------
 Milestone 2 (Tentative Future plan): 
 In future each one of us are planning to write corresponding rules for Lexer, Parser and Interpreter Based on the rules we have created so far. So each team member will be working on the lexer, parser and interpreter. 
+
+Abhishek:
+Updated the rule for expression inside parenthesis.
+Updated the rule for vertical expression.
+Updated the rule for printing values.
+Rule for negative numbers.
+Rule for including words.
+Rule for comments inside block.
+Rule for statements inside comment.
+Rule for finding length of a string.
+Rule for String concatenation function.
+Eval expression for evaluating expression blocks.
+Eval Print for evaluating print statements.
