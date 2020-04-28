@@ -85,8 +85,14 @@ This language was developed and built on MacOs but it can be compiled and run on
 
 ## Contributors :
 
-- Abhishek Haksar ( Link)
-- Rohit Kumar Singh (Link)
-- Sarvansh Prasher (Link)
-- Surya Chatterjee ( Link)
+- [Abhishek Haksar][1] 
+- [Rohit Kumar Singh][2] 
+- [Sarvansh Prasher][3] 
+- [Surya Chatterjee][4]
+
+
+  [1]: https://github.com/Abhi241296
+  [2]: https://github.com/rohitksingh
+  [3]: https://github.com/sarvanshprasher
+  [4]: https://github.com/surya-de
 
