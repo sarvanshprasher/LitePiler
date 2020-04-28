@@ -30,9 +30,9 @@ This language was developed and built on MacOs but it can be compiled and run on
 
 ## Build and run the language
 
-1. Write program according to programming syntax. For reference ,[See sample codes][7] present in data folder. (Link)
+1. Write program according to programming syntax. For reference, [See sample codes][7] present in data folder.
 
-2. For running program in environment, clone the [repository][7] to your local system.
+2. For running program in environment, clone the [repository][8] to your local system.
 
 3. Open SWI-Prolog runtime environment.(Desktop Version)
 
@@ -55,33 +55,31 @@ This language was developed and built on MacOs but it can be compiled and run on
 ## Sample programs for language :
 
 
-- **Fibonacci Pattern :**
+- **[Fibonacci Pattern:][9]**
 
     litepiler('/Users/sarvanshprasher/Desktop/Study material/SER 502/SER502-Spring2020-Team20/data/fibonacci.lp').
 
-- **Factorial of a number :** 
+- **[Factorial of a number:][10]** 
 
     litepiler('/Users/sarvanshprasher/Desktop/Study material/SER 502/SER502-Spring2020-Team20/data/factorialNumber.lp').
 
-- **Power of a number :** 
+- **[Power of a number:][11]** 
 
     litepiler('/Users/sarvanshprasher/Desktop/Study material/SER 502/SER502-Spring2020-Team20/data/powerOfNumber.lp').
 
-- **Ternary Operation :** 
+- **[Ternary Operation:][12]** 
 
 
     litepiler('/Users/sarvanshprasher/Desktop/Study material/SER 502/SER502-Spring2020-Team20/data/ternary.lp').
 
-- **Printing Natural Numbers :** 
+- **[Printing Natural Numbers:][13]** 
 
     litepiler('/Users/sarvanshprasher/Desktop/Study material/SER 502/SER502-Spring2020-Team20/data/printNumber.lp').
 
 
-- **For Range Print Numbers :** 
+- **[For Range Print Numbers:][5]** 
 
     litepiler('/Users/sarvanshprasher/Desktop/Study material/SER 502/SER502-Spring2020-Team20/data/rangeInForLoop.lp').
-
-
 
 ## Contributors :
 
@@ -99,4 +97,12 @@ This language was developed and built on MacOs but it can be compiled and run on
   [6]: http://www.swi-prolog.org/download/stable
   [7]: https://github.com/sarvanshprasher/SER502-Spring2020-Team20/tree/master/data
   [8]: https://github.com/sarvanshprasher/SER502-Spring2020-Team20
+  [9]: https://github.com/sarvanshprasher/SER502-Spring2020-Team20/blob/master/data/fibonacci.lp
+  [10]: https://github.com/sarvanshprasher/SER502-Spring2020-Team20/blob/master/data/fibonacci.lp
+  [11]: https://github.com/sarvanshprasher/SER502-Spring2020-Team20/blob/master/data/powerOfNumber.lp
+  [12]: https://github.com/sarvanshprasher/SER502-Spring2020-Team20/blob/master/data/ternary.lp
+  [13]: https://github.com/sarvanshprasher/SER502-Spring2020-Team20/blob/master/data/printNumber.lp
+  [14]: https://github.com/sarvanshprasher/SER502-Spring2020-Team20/blob/master/data/rangeInForLoop.lp
+  
+
 
