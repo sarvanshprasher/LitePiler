@@ -19,7 +19,7 @@ This language was written in four layers :
 - Fourth part was to write Interpreter. For the rules written in parser, we have written eval function for them which will help us in evaluating the end result of the program. (**Interpreter**)
 
 ## Flow diagram of compiler
-![alt text](https://github.com/sarvanshprasher/SER502-Spring2020-Team20/blob/master/Flow%20Diagram.jpg)
+![alt text](https://user-images.githubusercontent.com/11274840/80473399-ef869e80-88fa-11ea-8e3b-cfd632d43df8.png)
 
 ## Tools used for language : 
 
