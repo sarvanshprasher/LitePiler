@@ -1,5 +1,7 @@
 # SER-502-Compiler
 ## LitePiler
+![unnamed](https://user-images.githubusercontent.com/11274840/80438904-27212680-88ba-11ea-90c8-14ae5c9d3c15.png). 
+
 This is a group project for SER502. In this project we have developed a programming language and the framework which runs programs written in laungage. Name of language is LitePiler.
 
 ## Basic idea about language:
