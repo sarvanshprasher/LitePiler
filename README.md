@@ -52,33 +52,44 @@ This language was developed and built on MacOs but it can be compiled and run on
 6. A new file wil be created which will contain the parse tree of program with extension .lpy . That parse tree will be automatically executed and loaded into interpreter for giving you the output value on terminal.
 
 ## Sample programs for language :
+**Consult Program**
+
+<img width="943" alt="1" src="https://user-images.githubusercontent.com/11274840/80689660-7fa32000-8a82-11ea-9b3d-928c7c4bb7a2.png">
 
 
 - **[Fibonacci Pattern:][9]**
 
     litepiler('/Users/sarvanshprasher/Desktop/Study material/SER 502/SER502-Spring2020-Team20/data/fibonacci.lp').
+    
+    <img width="941" alt="8" src="https://user-images.githubusercontent.com/11274840/80689671-83cf3d80-8a82-11ea-8fc3-4862d1c4dd8a.png">
 
 - **[Factorial of a number:][10]** 
 
     litepiler('/Users/sarvanshprasher/Desktop/Study material/SER 502/SER502-Spring2020-Team20/data/factorialNumber.lp').
+    <img width="939" alt="2" src="https://user-images.githubusercontent.com/11274840/80689664-816ce380-8a82-11ea-85ca-ebd90f11f47a.png">
+
 
 - **[Power of a number:][11]** 
 
     litepiler('/Users/sarvanshprasher/Desktop/Study material/SER 502/SER502-Spring2020-Team20/data/powerOfNumber.lp').
+    <img width="941" alt="6" src="https://user-images.githubusercontent.com/11274840/80689668-8336a700-8a82-11ea-86cd-18d429d95f82.png">
 
 - **[Ternary Operation:][12]** 
 
 
     litepiler('/Users/sarvanshprasher/Desktop/Study material/SER 502/SER502-Spring2020-Team20/data/ternary.lp').
+    <img width="940" alt="4" src="https://user-images.githubusercontent.com/11274840/80689665-829e1080-8a82-11ea-8793-aff337da0e67.png">
 
 - **[Printing Natural Numbers:][13]** 
 
     litepiler('/Users/sarvanshprasher/Desktop/Study material/SER 502/SER502-Spring2020-Team20/data/printNumber.lp').
+    <img width="940" alt="5" src="https://user-images.githubusercontent.com/11274840/80689666-8336a700-8a82-11ea-85c7-109f0c6fecf3.png">
 
 
 - **[For Range Print Numbers:][14]** 
 
     litepiler('/Users/sarvanshprasher/Desktop/Study material/SER 502/SER502-Spring2020-Team20/data/rangeInForLoop.lp').
+    <img width="943" alt="7" src="https://user-images.githubusercontent.com/11274840/80689670-83cf3d80-8a82-11ea-85bc-66f46c969937.png">
 
 ## Contributors :
 
