@@ -90,6 +90,23 @@ This language was developed and built on MacOs but it can be compiled and run on
 
     litepiler('/Users/sarvanshprasher/Desktop/Study material/SER 502/SER502-Spring2020-Team20/data/rangeInForLoop.lp').
     <img width="943" alt="7" src="https://user-images.githubusercontent.com/11274840/80689670-83cf3d80-8a82-11ea-85bc-66f46c969937.png">
+    
+## Features Added :
+
+- Taking input from user
+- Printing out on terminal
+- Control flow structures (traditional for loop, for range loop, while loop)
+- Conditional statement (if else, ternary operation)
+- Increment, decrement operation (i++, i--)
+- Negative number
+- Arithmetic operator (<,>,==,<=,>=)
+- Conditional operator (and, or, not)
+- Assignment operator (=)
+- Datatypes (String, Boolean, Int)
+- Comments
+- Features Added but not tested :
+   - String operation (String length, Concat strings)
+
 
 ## Contributors :
 
